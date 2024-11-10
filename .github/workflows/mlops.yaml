@@ -30,15 +30,15 @@ jobs:
 
     - name: Prepare Data
       run: |
-         python3.11 scr/prepare.py data/prepared  
+         python3.11 src/prepare.py data/prepared  
 
     - name: Train Model
       run: |
-         python3.11 scr/train.py data/prepared model  
+         python3.11 src/train.py data/prepared model  
 
     - name: Evaluate Model
       run: |
-         python3.11 scr/evaluate.py model data/prepared  
+         python3.11 src/evaluate.py model data/prepared  
 
     - name: Upload Results
       uses: actions/upload-artifact@v4

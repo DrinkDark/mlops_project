@@ -41,12 +41,13 @@ jobs:
          python3.11 src/evaluate.py model data/prepared  
 
     - name: Commit and Push Results to Main
-    if: success()  # Only if the previous steps were successful
-    run: |
-      git config --local user.name "github-actions[bot]"
-      git config --local user.email "github-actions[bot]@users.noreply.github.com"
-      git add evaluation/
-      git commit -m "Add evaluation results and model from GitHub Actions run"
-      git push origin main
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      if: success()  # Only if the previous steps were successful
+      
+      run: |
+        git config --local user.name "github-actions[bot]"
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git add evaluation/
+        git commit -m "Add evaluation results and model from GitHub Actions run"
+        git push origin main
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

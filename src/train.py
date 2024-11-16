@@ -71,7 +71,7 @@ def main() -> None:
     train_params = yaml.safe_load(open("params.yaml"))["train"]
 
     prepared_dataset_folder = Path(sys.argv[1])
-    model_folder = Path("models") / Path(sys.argv[2])
+    model_folder = Path("model") / Path(sys.argv[2])
     print(f"Training model: {sys.argv[2]}")
     model_v = int((sys.argv[2])[-1])
 

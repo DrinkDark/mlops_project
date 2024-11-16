@@ -24,7 +24,7 @@ jobs:
 
   data-train-evaluate:
     runs-on: ubuntu-latest
-    #needs: create-branch
+    needs: create-branch
     strategy:
       matrix:
         model: [model1, model2, model3]  
@@ -59,7 +59,6 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add -f evaluation/${{ matrix.model }}
           git add -f model/${{ matrix.model }}
-          git check
           git commit -m "Add trained evaluation and model ${{matrix.model}}"
           TAG_NAME=${GITHUB_REF_NAME}
           git push origin test-${TAG_NAME}

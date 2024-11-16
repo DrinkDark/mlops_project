@@ -72,7 +72,8 @@ def main() -> None:
 
     prepared_dataset_folder = Path(sys.argv[1])
     model_folder = Path("models") / Path(sys.argv[2])
-    model_v = int((sys.argv[1])[5:])
+    print(f"Training model: {sys.argv[1]}")
+    model_v = int((sys.argv[1])[-1])
 
     image_size = prepare_params["image_size"]
     grayscale = prepare_params["grayscale"]

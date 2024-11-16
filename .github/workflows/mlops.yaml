@@ -3,8 +3,6 @@ name: MLOps_test_train
 on:
   # Runs on pushes targeting main branch
   push:
-    branches:
-      - main
     tags:
       - train*
   # Runs on pull requests
@@ -43,7 +41,7 @@ jobs:
 
     - name: Evaluate Model for ${{ matrix.model }}
       run: |
-         python3.11 src/evaluate.py models/${{ matrix.model }} data/prepared  
+         python3.11 src/evaluate.py ${{ matrix.model }} data/prepared  
 
     - name: Commit and Push Results for ${{ matrix.model }}
       if: success()  # Only if the previous steps were successful

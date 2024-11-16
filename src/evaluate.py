@@ -114,10 +114,11 @@ def main() -> None:
         print("\tpython3 evaluate.py <model-folder> <prepared-dataset-folder>\n")
         exit(1)
 
-    model_folder = Path(sys.argv[1])
+    model_folder = Path("models") / Path(sys.argv[1])
     prepared_dataset_folder = Path(sys.argv[2])
-    evaluation_folder = Path("evaluation")
+    evaluation_folder = Path("evaluation") / Path(sys.argv[1])
     plots_folder = Path("plots")
+   
 
     # Create folders
     (evaluation_folder / plots_folder).mkdir(parents=True, exist_ok=True)

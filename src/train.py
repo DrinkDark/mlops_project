@@ -14,19 +14,49 @@ def get_model(
     conv_size: int,
     dense_size: int,
     output_classes: int,
+    model_v: int,
 ) -> tf.keras.Model:
     """Create a simple CNN model"""
-    model = tf.keras.models.Sequential(
-        [
-            tf.keras.layers.Conv2D(
-                conv_size, (3, 3), activation="relu", input_shape=image_shape
-            ),
-            tf.keras.layers.MaxPooling2D((3, 3)),
-            tf.keras.layers.Flatten(),
-            tf.keras.layers.Dense(dense_size, activation="relu"),
-            tf.keras.layers.Dense(output_classes),
-        ]
-    )
+    if(model_v==1):
+        model = tf.keras.models.Sequential(
+            [
+                tf.keras.layers.Conv2D(
+                    conv_size, (3, 3), activation="relu", input_shape=image_shape
+                ),
+                tf.keras.layers.MaxPooling2D((3, 3)),
+                tf.keras.layers.Flatten(),
+                tf.keras.layers.Dense(dense_size, activation="relu"),
+                tf.keras.layers.Dense(output_classes),
+            ]
+        )
+    elif(model_v==2):
+        model = tf.keras.models.Sequential(
+            [
+                tf.keras.layers.Conv2D(
+                    conv_size, (5, 5), activation="relu", input_shape=image_shape
+                ),
+                tf.keras.layers.MaxPooling2D((5, 5)),
+                tf.keras.layers.Flatten(),
+                tf.keras.layers.Dense(dense_size, activation="relu"),
+                tf.keras.layers.Dense(output_classes),
+            ]
+        )
+    else:
+        model = tf.keras.models.Sequential(
+            [
+                tf.keras.layers.Conv2D(
+                    conv_size, (3, 3), activation="relu", input_shape=image_shape
+                ),
+                tf.keras.layers.MaxPooling2D((3, 3)),
+                tf.keras.layers.Conv2D(
+                    conv_size, (3, 3), activation="relu", input_shape=image_shape
+                ),
+                tf.keras.layers.MaxPooling2D((3, 3)),
+                tf.keras.layers.Flatten(),
+                tf.keras.layers.Dense(dense_size, activation="relu"),
+                tf.keras.layers.Dense(output_classes),
+            ]
+        )
     return model
 
 
@@ -41,7 +71,8 @@ def main() -> None:
     train_params = yaml.safe_load(open("params.yaml"))["train"]
 
     prepared_dataset_folder = Path(sys.argv[1])
-    model_folder = Path(sys.argv[2])
+    model_folder = Path("models") / Path(sys.argv[2])
+    model_v = int((sys.argv[1])[5:])
 
     image_size = prepare_params["image_size"]
     grayscale = prepare_params["grayscale"]
@@ -60,15 +91,16 @@ def main() -> None:
     # Load data
     ds_train = tf.data.Dataset.load(str(prepared_dataset_folder / "train"))
     ds_val = tf.data.Dataset.load(str(prepared_dataset_folder / "val"))
-
     # Define the model
-    model = get_model(image_shape, conv_size, dense_size, output_classes)
+
+    model = get_model(image_shape, conv_size, dense_size, output_classes,model_v)
     model.compile(
         optimizer=tf.keras.optimizers.Adam(lr),
         loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
         metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
     )
     model.summary()
+
 
     # Train the model
     model.fit(

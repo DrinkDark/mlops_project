@@ -97,7 +97,7 @@ def main() -> None:
     ds_train.save(str(prepared_dataset_folder / "train"))
     ds_val.save(str(prepared_dataset_folder / "val"))
     ds_test.save(str(prepared_dataset_folder / "test"))
-
+    print(ds_train)
     print(f"\nDataset saved at {prepared_dataset_folder.absolute()}")
 
 

@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - train*
   # Runs on pull requests
   pull_request:
 
@@ -14,6 +16,9 @@ on:
 jobs:
   train-evaluate:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        model: [model1, model2, model3] 
 
     steps:
     - name: Checkout repository
@@ -32,21 +37,21 @@ jobs:
       run: |
          python3.11 src/prepare.py data/prepared  
 
-    - name: Train Model
+    - name: Train Model for ${{ matrix.model }}
       run: |
-         python3.11 src/train.py data/prepared model  
+         python3.11 src/train.py data/prepared ${{ matrix.model }}  
 
-    - name: Evaluate Model
+    - name: Evaluate Model for ${{ matrix.model }}
       run: |
-         python3.11 src/evaluate.py model data/prepared  
+         python3.11 src/evaluate.py models/${{ matrix.model }} data/prepared  
 
-    - name: Commit and Push Results to Main
+    - name: Commit and Push Results for ${{ matrix.model }}
       if: success()  # Only if the previous steps were successful
       
       run: |
         git config --local user.name "github-actions[bot]"
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git add evaluation/
+        git add evaluation/${{ matrix.model }}
         git commit -m "Add evaluation results and model from GitHub Actions run"
         git push origin main
       env:

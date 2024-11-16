@@ -38,6 +38,7 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add data/prepared
           git commit -m "Add prepared data"
+          git config --global http.postBuffer 524288000
           git push origin test-${GITHUB_SHA}
 
   train-evaluate:
@@ -88,6 +89,7 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global http.postBuffer 524288000
           git checkout main
           git merge test-${GITHUB_SHA}
           git push origin main

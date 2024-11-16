@@ -59,9 +59,7 @@ jobs:
           path: |
             model/
             evaluation/
-          key: cache-models-${{ github.sha }}
-          restore-keys: |
-            cache-model
+          key: cache-model
 
       - name: Merge test branch into main
         if: success()  

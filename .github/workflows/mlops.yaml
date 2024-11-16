@@ -18,7 +18,7 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b test-${GITHUB_SHA}
+          git checkout -b test-${GITHUB_SHA} || git checkout test-${GITHUB_SHA}
           git push origin test-${GITHUB_SHA}
 
   data-train-evaluate:

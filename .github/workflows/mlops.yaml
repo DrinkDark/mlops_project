@@ -8,22 +8,11 @@ on:
 
 jobs:
   # creat branch and data
-  create-branch:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
-      - name: Create test branch
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b test-${GITHUB_SHA} || git checkout test-${GITHUB_SHA}
-          git push origin test-${GITHUB_SHA}
 
   data-train-evaluate:
     runs-on: ubuntu-latest
-    needs: create-branch
+    #needs: create-branch
     strategy:
       matrix:
         model: [model1, model2, model3]  
@@ -58,6 +47,7 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add -f evaluation/${{ matrix.model }}
           git add -f model/${{ matrix.model }}
+          git checkout main
           git commit -m "Add trained evaluation and model ${{matrix.model}}"
           git push origin test-${GITHUB_SHA}
 

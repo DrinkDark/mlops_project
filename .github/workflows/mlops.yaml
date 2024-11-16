@@ -8,23 +8,11 @@ on:
 
 jobs:
   # creat branch and data
-  create-branch:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
-      - name: Create test branch
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          TAG_NAME=${GITHUB_REF_NAME}
-          git checkout -b test-${TAG_NAME} || git checkout test-${TAG_NAME}
-          git push origin test-${TAG_NAME}
 
   data-train-evaluate:
     runs-on: ubuntu-latest
-    needs: create-branch
+    #needs: create-branch
     strategy:
       matrix:
         model: [model1, model2, model3]  
@@ -32,14 +20,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name : checkout test
-        run: |
-          TAG_NAME=${GITHUB_REF_NAME}
-          git checkout test-${TAG_NAME}
-
-      - name: List branches
-        run: git branch -a
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -53,6 +33,14 @@ jobs:
         run: |
           python3.11 src/prepare.py data/prepared
 
+      - name: Restore cache for model and evaluation
+        uses: actions/cache@v3
+        with:
+          path: |
+            model/${{ matrix.model }}
+            evaluation/${{ matrix.model }}
+          key: cache-${{ matrix.model }}-${{ github.sha }}
+
       - name: Train Model for ${{ matrix.model }}
         run: |
           python3.11 src/train.py data/prepared ${{ matrix.model }}
@@ -61,15 +49,13 @@ jobs:
         run: |
           python3.11 src/evaluate.py ${{ matrix.model }} data/prepared
 
-      - name: Commit and Push Model
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add -f evaluation/${{ matrix.model }}
-          git add -f model/${{ matrix.model }}
-          git commit -m "Add trained evaluation and model ${{matrix.model}}"
-          TAG_NAME=${GITHUB_REF_NAME}
-          git push origin test-${TAG_NAME}
+      - name: Save results to cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            model/${{ matrix.model }}
+            evaluation/${{ matrix.model }}
+          key: cache-${{ matrix.model }}-${{ github.sha }}
 
   compar-merge:
     runs-on: ubuntu-latest
@@ -79,15 +65,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Restore cache for all models
+        uses: actions/cache@v3
+        with:
+          path: |
+            model/
+            evaluation/
+          key: cache-models-${{ github.sha }}
+          restore-keys: |
+            cache-models-
+
       - name: Merge test branch into main
-        if: success()  # Seul si tout a réussi
+        if: success()  
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global http.postBuffer 524288000
-          git checkout main
-          TAG_NAME=${GITHUB_REF_NAME}
-          git merge test-${TAG_NAME}
+          git add -f model/
+          git add -f evaluation/
+          git commit -m "Add all trained models and evaluations"
           git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

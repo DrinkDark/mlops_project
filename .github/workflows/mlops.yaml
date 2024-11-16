@@ -3,9 +3,8 @@ name: MLOps_test_train
 on:
   # Runs on pushes targeting main branch
   push:
-    tags:
-      - 'train*'
-
+    branches:
+      -main
 jobs:
   # creat branch and data
 
@@ -80,7 +79,6 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global http.postBuffer 524288000
           git add -f model/
           git add -f evaluation/
           git commit -m "Add all trained models and evaluations"

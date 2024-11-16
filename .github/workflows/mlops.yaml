@@ -21,7 +21,10 @@ jobs:
 
   data-train-evaluate:
     runs-on: ubuntu-latest
-    needs: create-branch  
+    needs: create-branch
+    strategy:
+      matrix:
+        model: [model1, model2, model3]  
     
     steps:
       - name: Checkout repository

@@ -10,8 +10,7 @@ jobs:
   # creat branch and data
   create-branch-and-save-data:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/tags/train*'
-
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

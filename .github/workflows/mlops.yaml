@@ -4,11 +4,8 @@ on:
   # Runs on pushes targeting main branch
   push:
     branches:
-      -main
+      - main
 jobs:
-  # creat branch and data
-
-
   data-train-evaluate:
     runs-on: ubuntu-latest
     #needs: create-branch

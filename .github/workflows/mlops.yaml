@@ -29,14 +29,6 @@ jobs:
         run: |
           python3.11 src/prepare.py data/prepared
 
-      - name: Restore cache for model and evaluation
-        uses: actions/cache@v3
-        with:
-          path: |
-            model/${{ matrix.model }}
-            evaluation/${{ matrix.model }}
-          key: cache-${{ matrix.model }}-${{ github.sha }}
-
       - name: Train Model for ${{ matrix.model }}
         run: |
           python3.11 src/train.py data/prepared ${{ matrix.model }}
@@ -51,7 +43,7 @@ jobs:
           path: |
             model/${{ matrix.model }}
             evaluation/${{ matrix.model }}
-          key: cache-${{ matrix.model }}-${{ github.sha }}
+          key: cache-model
 
   compar-merge:
     runs-on: ubuntu-latest
@@ -69,7 +61,7 @@ jobs:
             evaluation/
           key: cache-models-${{ github.sha }}
           restore-keys: |
-            cache-models-
+            cache-model
 
       - name: Merge test branch into main
         if: success()  

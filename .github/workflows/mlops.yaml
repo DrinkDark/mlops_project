@@ -42,7 +42,7 @@ jobs:
     - name: Evaluate Model for ${{ matrix.model }}
       run: |
          python3.11 src/evaluate.py ${{ matrix.model }} data/prepared  
-comite:
+  comite:
     needs: train-evaluate
     runs-on: ubuntu-latest
     steps:

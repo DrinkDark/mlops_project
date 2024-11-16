@@ -49,6 +49,7 @@ jobs:
       run: |
         git config --local user.name "github-actions[bot]"
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git checkout main
         git add evaluation/${{ matrix.model }}
         git commit -m "Add evaluation results and model from GitHub Actions run"
         git push origin main

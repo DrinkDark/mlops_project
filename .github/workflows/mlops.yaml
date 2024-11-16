@@ -8,9 +8,11 @@ on:
 
 jobs:
   # creat branch and data
-  create-branch-and-save-data:
+  train-evaluate:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        model: [model1, model2, model3] 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -31,34 +33,6 @@ jobs:
       - name: Prepare Data
         run: |
           python3.11 src/prepare.py data/prepared
-
-      - name: Commit and Push Data
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/prepared
-          git commit -m "Add prepared data"
-          git config --global http.postBuffer 524288000
-          git push origin test-${GITHUB_SHA}
-
-  train-evaluate:
-    runs-on: ubuntu-latest
-    needs: create-branch-and-save-data  
-    strategy:
-      matrix:
-        model: [model1, model2, model3] 
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: pip install --requirement requirements-freeze.txt
 
       - name: Train Model for ${{ matrix.model }}
         run: |

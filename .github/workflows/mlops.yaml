@@ -16,6 +16,8 @@ jobs:
 
       - name: Create test branch
         run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -b test-${GITHUB_SHA}
           git push origin test-${GITHUB_SHA}
 
@@ -68,6 +70,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Merge test branch into main
+        if: success()  # Seul si tout a réussi
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"

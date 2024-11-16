@@ -54,8 +54,8 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add evaluation/${{ matrix.model }}
-          git add model/${{ matrix.model }}
+          git add -f evaluation/${{ matrix.model }}
+          git add -f model/${{ matrix.model }}
           git commit -m "Add trained evaluation and model ${matrix.model}"
           git push origin test-${GITHUB_SHA}
 

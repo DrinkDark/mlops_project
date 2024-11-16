@@ -42,10 +42,11 @@ jobs:
     - name: Evaluate Model for ${{ matrix.model }}
       run: |
          python3.11 src/evaluate.py ${{ matrix.model }} data/prepared  
-
+comite:
+    needs: train-evaluate
+    runs-on: ubuntu-latest
+    steps:
     - name: Commit and Push Results
-      if: success()  # Only if the previous steps were successful
-      
       run: |
         git config --local user.name "github-actions[bot]"
         git config --local user.email "github-actions[bot]@users.noreply.github.com"

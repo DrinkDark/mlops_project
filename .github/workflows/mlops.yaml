@@ -8,9 +8,12 @@ on:
 
 jobs:
   # creat branch and data
-  create-branch-and-save-data:
+  create-branch:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Create test branch
         run: |
           git checkout -b test-${GITHUB_SHA}
@@ -18,7 +21,7 @@ jobs:
 
   data-train-evaluate:
     runs-on: ubuntu-latest
-    needs: create-branch-and-save-data  
+    needs: create-branch  
     
     steps:
       - name: Checkout repository

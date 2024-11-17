@@ -37,7 +37,7 @@ jobs:
           path: |
             model/${{ matrix.model }}
             evaluation/${{ matrix.model }}
-          key: $models-${{ matrix.task }}-${{ github.run_id }}
+          key: models-${{ matrix.task }}-${{ github.run_id }}
 
       - name: Prepare Data
         run: |

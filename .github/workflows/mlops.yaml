@@ -26,21 +26,9 @@ jobs:
 
       - name: check ficher in
         run: |
-          echo "Aggregating data:"
+          echo "Data train in:"
           ls -R model
           ls -R evaluation
-      
-      - name: Restore cache
-        id: cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            model/${{ matrix.model }}
-            evaluation/${{ matrix.model }}
-          key: models-${{ matrix.model}}-${{ github.run_id }}
-      - name: key-cache
-        run: |
-          echo models-${{ matrix.model}}-${{ github.run_id }}
 
       - name: Prepare Data
         run: |
@@ -56,9 +44,17 @@ jobs:
 
       - name: check ficher out
         run: |
-          echo "Aggregating data:"
+          echo "Data train out"
           ls -R model
           ls -R evaluation
+
+      - name: Upload evaluation-model
+        uses: actions/upload-artifact@v4
+        with:
+          name: evalutation-model
+          path: |
+            evaluation/${{ matrix.model }}
+            model/${{ matrix.model }}
 
   compar-merge:
     runs-on: ubuntu-latest
@@ -68,17 +64,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Restore cache for all models
-        uses: actions/cache@v3
+      - name: Download 
+        uses: actions/download-artifact@v4
         with:
-          path: |
-            model
-            evaluation
-          key: universal-cache-${{ github.run_id }}
-          restore-keys: |
-            models-model1-${{ github.run_id }}
-            models-model2-${{ github.run_id }}
-            models-model3-${{ github.run_id }}
+          name: evalutation-model
+
 
       - name: Aggregate data
         run: |

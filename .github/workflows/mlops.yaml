@@ -73,7 +73,9 @@ jobs:
             evaluation
           key: universal-cache-${{ github.run_id }}
           restore-keys: |
-            models-
+            models-model1-${{ github.run_id }}
+            models-model2-${{ github.run_id }}
+            models-model3-${{ github.run_id }}
 
       - name: Aggregate data
         run: |

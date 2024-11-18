@@ -64,11 +64,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download 
+      - name: Download evaluation 
         uses: actions/download-artifact@v4
         with:
           path: |
             evaluation
+      - name: Download model 
+        uses: actions/download-artifact@v4
+        with:
+          path: |
             model
 
 

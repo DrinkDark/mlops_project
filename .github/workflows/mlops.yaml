@@ -38,6 +38,9 @@ jobs:
             model/${{ matrix.model }}
             evaluation/${{ matrix.model }}
           key: models-${{ matrix.task }}-${{ github.run_id }}
+      - name: key-cache
+          run: |
+            echo models-${{ matrix.task }}-${{ github.run_id }}
 
       - name: Prepare Data
         run: |

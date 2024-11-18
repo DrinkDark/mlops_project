@@ -48,12 +48,18 @@ jobs:
           ls -R model
           ls -R evaluation
 
-      - name: Upload evaluation-model
+      - name: Upload evaluation
+        uses: actions/upload-artifact@v4
+        with:
+          name: ev-${{ matrix.model }}
+          path: |
+            evaluation/${{ matrix.model }}
+
+      - name: Upload model
         uses: actions/upload-artifact@v4
         with:
           name: evalutation-model-${{ matrix.model }}
           path: |
-            evaluation/${{ matrix.model }}
             model/${{ matrix.model }}
 
   compar-merge:
@@ -69,6 +75,7 @@ jobs:
         with:
           path: |
             evaluation
+  
       - name: Download model 
         uses: actions/download-artifact@v4
         with:

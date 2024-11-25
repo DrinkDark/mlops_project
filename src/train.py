@@ -46,11 +46,11 @@ def get_model_from_config(image_shape: Tuple[int, int, int], config: dict) -> tf
                         activation=None,  # Use softmax during compilation
                     )(branch)
             branches.append(branch)
-            if len(branches)> 1:
-                x = tf.keras.layers.Concatenate()(branches)
-            else:
-                x = branches[0]
-        model = tf.keras.Model(inputs=inputs, outputs=x)
+        if len(branches)> 1:
+            x = tf.keras.layers.Concatenate()(branches)
+        else:
+            x = branches[0]
+    model = tf.keras.Model(inputs=inputs, outputs=x)
     return model
 
 

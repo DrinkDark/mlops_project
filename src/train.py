@@ -20,27 +20,29 @@ def get_model_from_config(image_shape: Tuple[int, int, int], config: dict) -> tf
             for layer_type, params in branche.items():
                 branch=x
                 if layer_type == "conv_layers":
-                    branch = tf.keras.layers.Conv2D(
-                        filters=params["filters"],
-                        kernel_size=tuple(params["kernel_size"]),
-                        activation=params["activation"],
-                    )(branch)
-                elif layer_type == "max_pool":
-                    branch = tf.keras.layers.MaxPooling2D(
-                            pool_size=tuple(params["pool_size"])
+                    for param in params:
+                        branch = tf.keras.layers.Conv2D(
+                            filters=param["filters"],
+                            kernel_size=tuple(param["kernel_size"]),
+                            activation=param["activation"],
                         )(branch)
+                elif layer_type == "max_pool":
+                    for param in params:
+                        branch = tf.keras.layers.MaxPooling2D(
+                                pool_size=tuple(param["pool_size"])
+                            )(branch)
                 elif layer_type == "flatten":
                     branch = tf.keras.layers.Flatten()(branch)
-                elif layer_name == "dense_layers":
+                elif layer_type == "dense_layers":
                     branch = tf.keras.layers.Flatten()(branch)
-                    for dense_config in layer_config:
+                    for param in params:
                         branch = tf.keras.layers.Dense(
-                            units=params["units"],
-                            activation=params["activation"],
+                            units=param["units"],
+                            activation=param["activation"],
                         )(branch)
-                elif layer_name == "output_classes":
+                elif layer_type == "output_classes":
                     branch = tf.keras.layers.Dense(
-                        units=layer_config,
+                        units=params,
                         activation=None,  # Use softmax during compilation
                     )(branch)
                     branches.append(branch)

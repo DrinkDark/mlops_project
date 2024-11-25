@@ -7,6 +7,51 @@ import tensorflow as tf
 import yaml
 
 from utils.seed import set_seed
+def get_model_from_config(image_shape: Tuple[int, int, int], config: dict) -> tf.keras.Model:
+    """Create a CNN model based on YAML configuration."""
+    inputs = tf.keras.Input(shape=image_shape)
+    x=inputs
+
+    model = tf.keras.models.Sequential()
+    # Add convolutional layers
+    for layer in config["layer"]:
+        branches=[]
+        for branche in layer["branche"]:
+            for layer_type, params in branche.items():
+                branch=x
+                if layer_type == "conv_layers":
+                    branch = tf.keras.layers.Conv2D(
+                        filters=params["filters"],
+                        kernel_size=tuple(params["kernel_size"]),
+                        activation=params["activation"],
+                    )(branch)
+                elif layer_type == "max_pool":
+                    branch = tf.keras.layers.MaxPooling2D(
+                            pool_size=tuple(params["pool_size"])
+                        )(branch)
+                elif layer_type == "flatten":
+                    branch = tf.keras.layers.Flatten()(branch)
+                elif layer_name == "dense_layers":
+                    branch = tf.keras.layers.Flatten()(branch)
+                    for dense_config in layer_config:
+                        branch = tf.keras.layers.Dense(
+                            units=params["units"],
+                            activation=params["activation"],
+                        )(branch)
+                elif layer_name == "output_classes":
+                    branch = tf.keras.layers.Dense(
+                        units=layer_config,
+                        activation=None,  # Use softmax during compilation
+                    )(branch)
+                    branches.append(branch)
+            if len(branches)> 1:
+                x = tf.keras.layers.Concatenate()(branches)
+            else:
+                x = branches[0]
+        model = tf.keras.Model(inputs=inputs, outputs=x)
+    return model
+
+
 
 
 def get_model(
@@ -67,13 +112,21 @@ def main() -> None:
         exit(1)
 
     # Load parameters
-    prepare_params = yaml.safe_load(open("params.yaml"))["prepare"]
-    train_params = yaml.safe_load(open("params.yaml"))["train"]
+
+    params = yaml.safe_load(open("params.yaml"))
+    prepare_params = params["prepare"]
+    train_params = params["train"]
+    model_configs = params["model"]
 
     prepared_dataset_folder = Path(sys.argv[1])
     model_folder = Path("model") / Path(sys.argv[2])
     print(f"Training model: {sys.argv[2]}")
-    model_v = int((sys.argv[2])[-1])
+    model_v = (sys.argv[2])
+
+    if model_v not in model_configs:
+        print(f"Error: Model version '{model_v}' not defined in params.yaml.")
+        exit(1)
+    model_config=model_configs[model_v]
 
     image_size = prepare_params["image_size"]
     grayscale = prepare_params["grayscale"]
@@ -94,7 +147,9 @@ def main() -> None:
     ds_val = tf.data.Dataset.load(str(prepared_dataset_folder / "val"))
     # Define the model
 
-    model = get_model(image_shape, conv_size, dense_size, output_classes,model_v)
+    #model = get_model(image_shape, conv_size, dense_size, output_classes,model_v)
+    model = get_model_from_config(image_shape, model_config)
+
     model.compile(
         optimizer=tf.keras.optimizers.Adam(lr),
         loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),

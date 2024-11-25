@@ -11,3 +11,50 @@ train:
   conv_size: 32
   dense_size: 64
   output_classes: 100
+
+model:
+  model1:
+    layer:
+      - branche:
+        - conv_layers:
+          - filters: 32
+            kernel_size: [3, 3]
+            activation: "relu"
+        - max_pool:
+          - pool_size: [3, 3] 
+        - dense_layers:
+          - units: 128
+            activation: "relu"
+        - output_classes: 10
+  model2:
+    layer:
+      - branche:
+        - conv_layers:
+          - filters: 64
+            kernel_size: [5, 5]
+            activation: "relu"
+        - max_pool:
+          - pool_size: [3, 3] 
+        - dense_layers:
+          - units: 256
+            activation: "relu"
+        - output_classes: 10
+  model3:
+    layer:
+      - branche:
+        - conv_layers:
+          - filters: 32
+            kernel_size: [3, 3]
+            activation: "relu"
+        - max_pool:
+          - pool_size: [3, 3] 
+        - conv_layers:
+          - filters: 64
+            kernel_size: [3, 3]
+            activation: "relu"
+        - max_pool:
+          - pool_size: [3, 3] 
+        - dense_layers:
+          - units: 128
+            activation: "relu"
+        - output_classes: 10

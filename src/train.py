@@ -52,60 +52,6 @@ def get_model_from_config(image_shape: Tuple[int, int, int], config: dict) -> tf
     model = tf.keras.Model(inputs=inputs, outputs=x)
     return model
 
-
-
-
-def get_model(
-    image_shape: Tuple[int, int, int],
-    conv_size: int,
-    dense_size: int,
-    output_classes: int,
-    model_v: int,
-) -> tf.keras.Model:
-    """Create a simple CNN model"""
-    if(model_v==1):
-        model = tf.keras.models.Sequential(
-            [
-                tf.keras.layers.Conv2D(
-                    conv_size, (3, 3), activation="relu", input_shape=image_shape
-                ),
-                tf.keras.layers.MaxPooling2D((3, 3)),
-                tf.keras.layers.Flatten(),
-                tf.keras.layers.Dense(dense_size, activation="relu"),
-                tf.keras.layers.Dense(output_classes),
-            ]
-        )
-    elif(model_v==2):
-        model = tf.keras.models.Sequential(
-            [
-                tf.keras.layers.Conv2D(
-                    conv_size, (5, 5), activation="relu", input_shape=image_shape
-                ),
-                tf.keras.layers.MaxPooling2D((5, 5)),
-                tf.keras.layers.Flatten(),
-                tf.keras.layers.Dense(dense_size, activation="relu"),
-                tf.keras.layers.Dense(output_classes),
-            ]
-        )
-    else:
-        model = tf.keras.models.Sequential(
-            [
-                tf.keras.layers.Conv2D(
-                    conv_size, (3, 3), activation="relu", input_shape=image_shape
-                ),
-                tf.keras.layers.MaxPooling2D((3, 3)),
-                tf.keras.layers.Conv2D(
-                    conv_size, (3, 3), activation="relu", input_shape=image_shape
-                ),
-                tf.keras.layers.MaxPooling2D((3, 3)),
-                tf.keras.layers.Flatten(),
-                tf.keras.layers.Dense(dense_size, activation="relu"),
-                tf.keras.layers.Dense(output_classes),
-            ]
-        )
-    return model
-
-
 def main() -> None:
     if len(sys.argv) != 3:
         print("Arguments error. Usage:\n")
@@ -136,9 +82,6 @@ def main() -> None:
     seed = train_params["seed"]
     lr = train_params["lr"]
     epochs = train_params["epochs"]
-    conv_size = train_params["conv_size"]
-    dense_size = train_params["dense_size"]
-    output_classes = train_params["output_classes"]
 
     # Set seed for reproducibility
     set_seed(seed)

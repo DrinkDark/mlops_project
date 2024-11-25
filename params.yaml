@@ -8,9 +8,7 @@ train:
   seed: 77
   lr: 0.001
   epochs: 3
-  conv_size: 32
-  dense_size: 64
-  output_classes: 100
+  
 
 model:
   model1:
@@ -26,7 +24,7 @@ model:
         - dense_layers:
           - units: 128
             activation: "relu"
-        - output_classes: 10
+        - output_classes: 100
   model2:
     layer:
       - branche:
@@ -40,7 +38,7 @@ model:
         - dense_layers:
           - units: 256
             activation: "relu"
-        - output_classes: 10
+        - output_classes: 100
   model3:
     layer:
       - branche:
@@ -60,4 +58,4 @@ model:
         - dense_layers:
           - units: 128
             activation: "relu"
-        - output_classes: 10
+        - output_classes: 100

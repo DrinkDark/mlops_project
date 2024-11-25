@@ -14,7 +14,6 @@ def get_model_from_config(image_shape: Tuple[int, int, int], config: dict) -> tf
 
     model = tf.keras.models.Sequential()
     # Add convolutional layers
-    print(config.items())
     for layer in config["layer"]:
         branches=[]
         for branche in layer["branche"]:

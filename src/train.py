@@ -17,8 +17,8 @@ def get_model_from_config(image_shape: Tuple[int, int, int], config: dict) -> tf
     for layer in config["layer"]:
         branches=[]
         for branche in layer["branche"]:
+            branch = x
             for layer_type, params in branche.items():
-                branch=x
                 if layer_type == "conv_layers":
                     for param in params:
                         branch = tf.keras.layers.Conv2D(
@@ -45,7 +45,7 @@ def get_model_from_config(image_shape: Tuple[int, int, int], config: dict) -> tf
                         units=params,
                         activation=None,  # Use softmax during compilation
                     )(branch)
-                branches.append(branch)
+            branches.append(branch)
             if len(branches)> 1:
                 x = tf.keras.layers.Concatenate()(branches)
             else:

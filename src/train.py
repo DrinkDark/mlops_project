@@ -34,7 +34,6 @@ def get_model_from_config(image_shape: Tuple[int, int, int], config: dict) -> tf
                 elif layer_type == "flatten":
                     branch = tf.keras.layers.Flatten()(branch)
                 elif layer_type == "dense_layers":
-                    branch = tf.keras.layers.Flatten()(branch)
                     for param in params:
                         branch = tf.keras.layers.Dense(
                             units=param["units"],
@@ -45,7 +44,7 @@ def get_model_from_config(image_shape: Tuple[int, int, int], config: dict) -> tf
                         units=params,
                         activation=None,  # Use softmax during compilation
                     )(branch)
-        branches.append(branch)
+            branches.append(branch)
         if len(branches)> 1:
             x = tf.keras.layers.Concatenate()(branches)
         else:

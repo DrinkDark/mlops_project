@@ -45,7 +45,7 @@ def get_model_from_config(image_shape: Tuple[int, int, int], config: dict) -> tf
                         units=params,
                         activation=None,  # Use softmax during compilation
                     )(branch)
-                    branches.append(branch)
+                branches.append(branch)
             if len(branches)> 1:
                 x = tf.keras.layers.Concatenate()(branches)
             else:

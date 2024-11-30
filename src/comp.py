@@ -1,6 +1,7 @@
 import json
 import sys
 from pathlib import Path
+import shutil
 
 def load_results(results_dir):
     results = {}
@@ -10,7 +11,7 @@ def load_results(results_dir):
             if json_files:
                 json_file = json_files[0]
                 with open(json_file, 'r') as f:
-                    results[sub_dir.name] = json.load(f)
+                    results[sub_dir.name[3:]] = json.load(f)
     return results
 
 def compare_results(results):
@@ -32,4 +33,16 @@ if __name__ == "__main__":
     results = load_results(results_dir)
 
     best_model, best_score = compare_results(results)
-    print(f"Le meilleur modèle est : {best_model} avec un score de : {best_score}")
+
+    model_best_path="model/best-model"
+    ev_best_path="evaluation/best-model"
+
+    model_best_path.mkdir(parents=True, exist_ok=True)
+    ev_best_path.mkdir(parents=True, exist_ok=True)
+
+
+    shutil.copytree("model/model-{}".format(best_model),model_best_path)
+    shutil.copytree("evaluation/ev-{}".format(best_model),ev_best_path)
+
+    
+    print(f"Le meilleur modèle est : {best_model} avec un score de : {best_score:.6f}")

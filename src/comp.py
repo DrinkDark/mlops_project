@@ -4,9 +4,13 @@ from pathlib import Path
 
 def load_results(results_dir):
     results = {}
-    for result_file in Path(results_dir).glob("*.json"):
-        with open(result_file, 'r') as f:
-            results[result_file.stem] = json.load(f)
+    for sub_dir in Path(results_dir).iterdir():
+        if sub_dir.is_dir():
+            json_files = list(sub_dir.glob("*.json"))
+            if json_files:
+                json_file = json_files[0]
+                with open(json_file, 'r') as f:
+                    results[sub_dir.name] = json.load(f)
     return results
 
 def compare_results(results):

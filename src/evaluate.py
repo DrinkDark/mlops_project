@@ -117,7 +117,7 @@ def main() -> None:
     model_folder = Path("model") / Path(sys.argv[1])
     prepared_dataset_folder = Path(sys.argv[2])
     evaluation_folder = Path("evaluation") / Path(sys.argv[1])
-    plots_folder = Path("plots")
+    plots_folder = Path("plots-"+sys.argv[1])
    
 
     # Create folders

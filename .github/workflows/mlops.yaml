@@ -59,7 +59,7 @@ jobs:
       - name: Upload model
         uses: actions/upload-artifact@v4
         with:
-          name: evalutation-model-${{ matrix.model }}
+          name: model-${{ matrix.model }}
           path: |
             model/${{ matrix.model }}
 
@@ -71,17 +71,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install --requirement requirements-freeze.txt
+
       - name: Download evaluation 
         uses: actions/download-artifact@v4
         with:
+          pattern: ev-*
           path: |
             evaluation
   
       - name: Download model 
         uses: actions/download-artifact@v4
         with:
+          pattern: model-*
           path: |
             model
+
+      - name: compar and select model
+        run: |
+          python3.11 src/comp.py
 
 
       - name: Aggregate data

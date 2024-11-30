@@ -55,6 +55,7 @@ jobs:
           name: ev-${{ matrix.model }}
           path: |
             evaluation/${{ matrix.model }}
+          overwrite: true
 
       - name: Upload model
         uses: actions/upload-artifact@v4
@@ -62,6 +63,7 @@ jobs:
           name: model-${{ matrix.model }}
           path: |
             model/${{ matrix.model }}
+          overwrite: true
 
   compar-merge:
     runs-on: ubuntu-latest
@@ -94,17 +96,15 @@ jobs:
           path: |
             model
 
-      - name: compar and select model
-        run: |
-          python3.11 src/comp.py
-
-
       - name: Aggregate data
         run: |
           echo "Aggregating data:"
           ls -R model
           ls -R evaluation
-
+  
+      - name: compar and select model
+        run: |
+          python3.11 src/comp.py evaluation
 
       - name: Merge test branch into main
         if: success()  

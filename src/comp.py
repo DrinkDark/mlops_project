@@ -24,7 +24,7 @@ def compare_results(results):
     return best_model, best_score
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
+    if len(sys.argv) != 2:
         print("Usage: python compare_results.py <results_dir>")
         sys.exit(1)
 

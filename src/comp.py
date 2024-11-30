@@ -37,12 +37,8 @@ if __name__ == "__main__":
     model_best_path=Path("model/best-model")
     ev_best_path=Path("evaluation/best-model")
 
-    model_best_path.mkdir(parents=True, exist_ok=True)
-    ev_best_path.mkdir(parents=True, exist_ok=True)
-
-
-    shutil.copytree("model/model-{}".format(best_model),model_best_path)
-    shutil.copytree("evaluation/ev-{}".format(best_model),ev_best_path)
+    shutil.copytree("model/model-{}".format(best_model),model_best_path,dirs_exist_ok=True)
+    shutil.copytree("evaluation/ev-{}".format(best_model),ev_best_path,dirs_exist_ok=True)
 
     
     print(f"Le meilleur modèle est : {best_model} avec un score de : {best_score:.6f}")

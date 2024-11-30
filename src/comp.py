@@ -34,8 +34,8 @@ if __name__ == "__main__":
 
     best_model, best_score = compare_results(results)
 
-    model_best_path="model/best-model"
-    ev_best_path="evaluation/best-model"
+    model_best_path=Path("model/best-model")
+    ev_best_path=Path("evaluation/best-model")
 
     model_best_path.mkdir(parents=True, exist_ok=True)
     ev_best_path.mkdir(parents=True, exist_ok=True)

@@ -29,19 +29,31 @@ def get_preview_plot(ds: tf.data.Dataset, labels: List[str],grayscale=False) -> 
 
 
 def main() -> None:
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 3:
         print("Arguments error. Usage:\n")
         print("\tpython3 prepare.py <raw-dataset-folder> <prepared-dataset-folder>\n")
         exit(1)
 
     # Load parameters
-    prepare_params = yaml.safe_load(open("params.yaml"))["prepare"]
+    yaml_file = yaml.safe_load(open("params.yaml"))
+    prepare_params = yaml_file["prepare"]
+    train_params = yaml_file["train"]
+    model_configs = yaml_file["model"]
 
     prepared_dataset_folder = Path(sys.argv[1])
     seed = prepare_params["seed"]
     split = prepare_params["split"]
     image_size = prepare_params["image_size"]
     grayscale = prepare_params["grayscale"]
+    batch = train_params["batch"]
+    
+    model_v = (sys.argv[2])
+    #overwrite
+    if "params" in model_configs[model_v]:
+        print(model_configs[model_v]["params"])
+        if "batch" in model_configs[model_v]["params"]:
+            batch = model_configs[model_v]["params"]["batch"]
+
 
     # Set seed for reproducibility
     set_seed(seed)

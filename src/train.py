@@ -9,47 +9,55 @@ import yaml
 from utils.seed import set_seed
 def get_model_from_config(image_shape: Tuple[int, int, int], config: dict) -> tf.keras.Model:
     """Create a CNN model based on YAML configuration."""
-    inputs = tf.keras.Input(shape=image_shape)
-    x=inputs
 
-    model = tf.keras.models.Sequential()
-    # Add convolutional layers
-    for layer in config["layer"]:
-        branches=[]
-        branch = x
-        for branche in layer["branche"]:
-            for layer_type, params in branche.items():
-                if layer_type == "conv_layers":
-                    for param in params:
+    key_config,val_config = next(iter(config.items()))
+
+    if key_config == "ResNet50":
+        model=tf.keras.applications.ResNet50(
+            include_top=True,
+            weights=None,
+            input_shape=image_shape,
+            classes=val_config,
+        )
+
+    else:
+        inputs = tf.keras.Input(shape=image_shape)
+        x = inputs
+        model = tf.keras.models.Sequential()
+        for layer in config["layer"]:
+            branches=[]
+            branch = x
+            for branche in layer["branche"]:
+                for branche_type in branche.items():
+                    print(branche_type)
+                    if branche_type[0] == "conv_layers":
                         branch = tf.keras.layers.Conv2D(
-                            filters=param["filters"],
-                            kernel_size=tuple(param["kernel_size"]),
-                            activation=param["activation"],
+                            filters=branche_type[1]["filters"],
+                            kernel_size=tuple(branche_type[1]["kernel_size"]),
+                            activation=branche_type[1]["activation"],
                         )(branch)
-                elif layer_type == "max_pool":
-                    for param in params:
+                    elif branche_type[0] == "max_pool":
                         branch = tf.keras.layers.MaxPooling2D(
-                                pool_size=tuple(param["pool_size"])
+                                pool_size=tuple(branche_type[1]["pool_size"])
                             )(branch)
-                elif layer_type == "flatten":
-                    branch = tf.keras.layers.Flatten()(branch)
-                elif layer_type == "dense_layers":
-                    for param in params:
+                    elif branche_type[0] == "flatten":
+                        branch = tf.keras.layers.Flatten()(branch)
+                    elif branche_type[0] == "dense_layers":
                         branch = tf.keras.layers.Dense(
-                            units=param["units"],
-                            activation=param["activation"],
+                            units=branche_type[1]["units"],
+                            activation=branche_type[1]["activation"],
                         )(branch)
-                elif layer_type == "output_classes":
-                    branch = tf.keras.layers.Dense(
-                        units=params,
-                        activation=None,  # Use softmax during compilation
-                    )(branch)
-        branches.append(branch)
-        if len(branches)> 1:
-            x = tf.keras.layers.Concatenate()(branches)
-        else:
-            x = branches[0]
-    model = tf.keras.Model(inputs=inputs, outputs=x)
+                    elif branche_type[0] == "output_classes":
+                        branch = tf.keras.layers.Dense(
+                            units=branche_type[1],
+                            activation=None,  # Use softmax during compilation
+                        )(branch)
+            branches.append(branch)
+            if len(branches)> 1:
+                x = tf.keras.layers.Concatenate()(branches)
+            else:
+                x = branches[0]
+        model = tf.keras.Model(inputs=inputs, outputs=x)
     return model
 
 def main() -> None:
@@ -68,12 +76,10 @@ def main() -> None:
     prepared_dataset_folder = Path(sys.argv[1])
     model_folder = Path("model") / Path(sys.argv[2])
     print(f"Training model: {sys.argv[2]}")
-    model_v = (sys.argv[2])
 
-    if model_v not in model_configs:
-        print(f"Error: Model version '{model_v}' not defined in params.yaml.")
-        exit(1)
-    model_config=model_configs[model_v]
+    model_v = (sys.argv[2])
+    model_config=model_configs[model_v]["model"]
+
 
     image_size = prepare_params["image_size"]
     grayscale = prepare_params["grayscale"]
@@ -82,6 +88,17 @@ def main() -> None:
     seed = train_params["seed"]
     lr = train_params["lr"]
     epochs = train_params["epochs"]
+
+    #overwrite params
+    
+    if "params" in model_configs[model_v]:
+        if "seed" in model_configs[model_v]["params"]:
+            seed = model_configs[model_v]["params"]["seed"]
+        elif "lr" in model_configs[model_v]["params"]:
+            lr = model_configs[model_v]["params"]["lr"]
+        elif "epochs" in model_configs[model_v]["params"]:
+            epochs = model_configs[model_v]["params"]["epochs"]
+
 
     # Set seed for reproducibility
     set_seed(seed)

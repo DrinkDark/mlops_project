@@ -8,54 +8,67 @@ train:
   seed: 77
   lr: 0.001
   epochs: 3
+  batch: 128
   
 
 model:
   model1:
-    layer:
-      - branche:
-        - conv_layers:
-          - filters: 32
-            kernel_size: [3, 3]
-            activation: "relu"
-        - max_pool:
-          - pool_size: [3, 3]
-        - flatten: 0 
-        - dense_layers:
-          - units: 128
-            activation: "relu"
-        - output_classes: 100
+    params:
+      epochs: 5
+      batch: 64
+    model:
+      layer:
+        - branche:
+          - conv_layers:
+              filters: 32
+              kernel_size: [3, 3]
+              activation: "relu"
+          - max_pool:
+              pool_size: [3, 3]
+          - flatten: 0 
+          - dense_layers:
+              units: 128
+              activation: "relu"
+          - output_classes: 100
   model2:
-    layer:
-      - branche:
-        - conv_layers:
-          - filters: 64
-            kernel_size: [5, 5]
-            activation: "relu"
-        - max_pool:
-          - pool_size: [5, 5]
-        - flatten: 0  
-        - dense_layers:
-          - units: 256
-            activation: "relu"
-        - output_classes: 100
+    params:
+      lr: 0.003
+    model:
+      layer:
+        - branche:
+          - conv_layers:
+              filters: 64
+              kernel_size: [5, 5]
+              activation: "relu"
+          - max_pool:
+              pool_size: [5, 5]
+          - flatten: 0  
+          - dense_layers:
+              units: 256
+              activation: "relu"
+          - output_classes: 100
   model3:
-    layer:
-      - branche:
-        - conv_layers:
-          - filters: 32
-            kernel_size: [3, 3]
-            activation: "relu"
-        - max_pool:
-          - pool_size: [3, 3] 
-        - conv_layers:
-          - filters: 64
-            kernel_size: [3, 3]
-            activation: "relu"
-        - max_pool:
-          - pool_size: [3, 3] 
-        - flatten: 0
-        - dense_layers:
-          - units: 128
-            activation: "relu"
-        - output_classes: 100
+    model:
+      layer:
+        - branche:
+          - conv_layers:
+              filters: 32
+              kernel_size: [3, 3]
+              activation: "relu"
+          - max_pool:
+              pool_size: [3, 3] 
+          - conv_layers:
+              filters: 64
+              kernel_size: [3, 3]
+              activation: "relu"
+          - max_pool:
+              pool_size: [3, 3] 
+          - flatten: 0
+          - dense_layers:
+              units: 128
+              activation: "relu"
+          - output_classes: 100
+  model4:
+    model:
+      ResNet50: 100
+

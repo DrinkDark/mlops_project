@@ -6,12 +6,32 @@ on:
     branches:
       - main
 jobs:
+  prepare-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.extract-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Extract martix
+        id: extract-matrix
+        run: |
+          python3.11 src/martix.py > matrix.json
+          echo "::set-output name=matrix::$(cat matrix.json)"
+
+        
+
+
   data-train-evaluate:
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        model: [model1, model2, model3]
-    
+      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

@@ -59,7 +59,7 @@ jobs:
 
       - name: Prepare Data
         run: |
-          python3.11 src/prepare.py data/prepared
+          python3.11 src/prepare.py data/prepared ${{ matrix.model }}
 
       - name: Train Model for ${{ matrix.model }}
         run: |

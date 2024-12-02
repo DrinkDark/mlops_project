@@ -156,8 +156,8 @@ def main() -> None:
     for x_batch, y_batch in test_data:
         batch_size = x_batch.shape[0]
 
-    # Calculate average prediction time
-    mean_time = np.mean(times) / batch_size
+    # Calculate average prediction time in ms
+    mean_prediction_time = np.mean(times) / batch_size / 1000
 
     conf_matrix = tf.math.confusion_matrix(
         labels=tf.concat([y for _, y in ds_test], axis=0),
@@ -208,7 +208,7 @@ def main() -> None:
 
     print(f"Validation accuracy: {val_acc * 100:.2f}%")
 
-    print(f"Average prediction time: {mean_time:.6f} s")
+    print(f"Average prediction time: {mean_prediction_time:.6f} ms")
 
     print(f"Recall: {recall:.2f}")
 
@@ -221,7 +221,7 @@ def main() -> None:
     with open(evaluation_folder / "metrics.json", "w") as f:
 
         json.dump({"val_loss": val_loss, "val_acc": val_acc, "recall": recall, "fpr": FPR,
-                   "overfitting_tendency": overfitting_tendency, "complexity": complexity}, f)
+                   "overfitting_tendency": overfitting_tendency, "complexity": complexity, "mean_predictions_time": mean_prediction_time}, f)
 
     # Save training history plot
     fig = get_training_plot(model_history)

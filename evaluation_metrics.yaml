@@ -23,3 +23,11 @@ evaluation_metrics:
   overfitting_tendency: null
   complexity: null
 
+optimization_directions :
+  val_loss: "minimize"
+  val_acc: "maximize"
+  recall: "maximize"
+  fpr: "minimize"
+  overfitting_tendency: "minimize"
+  complexity: "minimize"
+

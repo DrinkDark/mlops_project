@@ -3,8 +3,6 @@ import sys
 from pathlib import Path
 import shutil
 import yaml
-from sklearn.preprocessing import MinMaxScaler
-import numpy as np
 
 def load_results(results_dir):
     results = {}
@@ -17,47 +15,67 @@ def load_results(results_dir):
                     results[sub_dir.name[3:]] = json.load(f)
     return results
 
-def normalize_results(results):
+def normalize_results(results, optimization_directions):
     """
-    Normalize the metrics across all models using min-max normalization.
+    Normalize the metrics across all models using min-max normalization,
+    considering whether each metric should be maximized or minimized.
     """
+    # Collect all metrics keys and initialize min/max dictionaries
     all_metrics = {metric for model in results.values() for metric in model.keys()}
+    min_values = {metric: float('inf') for metric in all_metrics}
+    max_values = {metric: float('-inf') for metric in all_metrics}
 
-    metric_values = {metric: [] for metric in all_metrics}
+    # Find min and max for each metric
     for model_metrics in results.values():
-        for metric in all_metrics:
-            metric_values[metric].append(model_metrics.get(metric, 0))  # Default to 0 if missing
+        for metric, value in model_metrics.items():
+            if metric in min_values:
+                min_values[metric] = min(min_values[metric], value)
+                max_values[metric] = max(max_values[metric], value)
 
+    # Normalize metrics for each model
     normalized_results = {}
-    scalers = {}
-    for metric, values in metric_values.items():
-        scaler = MinMaxScaler()
-        values = np.array(values).reshape(-1, 1)
-        normalized = scaler.fit_transform(values).flatten()
-        scalers[metric] = scaler  # Save scalers if needed for later
-        metric_values[metric] = normalized
+    for model, model_metrics in results.items():
+        normalized_results[model] = {}
+        for metric in all_metrics:
+            value = model_metrics.get(metric, 0)  # Default to 0 if missing
+            min_val, max_val = min_values[metric], max_values[metric]
 
-    for i, (model, model_metrics) in enumerate(results.items()):
-        normalized_results[model] = {metric: metric_values[metric][i] for metric in all_metrics}
+            if max_val > min_val:  # Avoid division by zero
+                if optimization_directions.get(metric, "maximize") == "maximize":
+                    normalized_value = (value - min_val) / (max_val - min_val)  # Higher is better
+                else:  # Minimize
+                    normalized_value = (max_val - value) / (max_val - min_val)  # Lower is better
+            else:
+                normalized_value = 0  # If all values are the same, normalize to 0
+
+            normalized_results[model][metric] = normalized_value
 
     return normalized_results
 
 def load_metrics_config():
     config = yaml.safe_load(open("evaluation_metrics.yaml"))
-    return config["metrics"]
+    return config["evaluation_metrics"], config["optimization_directions"]
 
 def compare_results(results):
-    metrics = load_metrics_config()
+    """
+    Compare models based on weighted and normalized metrics, considering directions.
+    """
+    weights, directions = load_metrics_config()
 
     best_model = None
     best_score = float('-inf')
 
     # Iterate through each model and calculate weighted scores
-    for model, metrics in results.items():
+    for model, model_metrics in results.items():
         score = 0
-        for metric, value in metrics.items():
-            if metric in metrics and metrics[metric] is not None:
-                score += metrics[metric] * value
+        for metric, value in model_metrics.items():
+            if metric in weights and weights[metric] is not None:
+                if directions.get(metric, "maximize") == "maximize":
+                    # Higher values are better
+                    score += weights[metric] * value
+                else:
+                    # Lower values are better; invert the value
+                    score += weights[metric] * (1 - value)  # Assumes normalized value in [0, 1]
         if score > best_score:
             best_score = score
             best_model = model

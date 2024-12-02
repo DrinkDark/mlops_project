@@ -19,7 +19,13 @@ def get_model_from_config(image_shape: Tuple[int, int, int], config: dict) -> tf
             input_shape=image_shape,
             classes=val_config,
         )
-
+    elif key_config == "MobileNet":
+        model=tf.keras.applications.MobileNet(
+            include_top=True,
+            weights=None,
+            input_shape=image_shape,
+            classes=val_config,
+        )
     else:
         inputs = tf.keras.Input(shape=image_shape)
         x = inputs

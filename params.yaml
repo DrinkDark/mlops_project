@@ -7,15 +7,15 @@ prepare:
 train:
   seed: 77
   lr: 0.001
-  epochs: 3
-  batch: 128
+  epochs: 2
+  batch: 256
   
 
 model:
   model1:
     params:
-      epochs: 5
-      batch: 64
+      epochs: 3
+      batch: 128
     model:
       layer:
         - branche:
@@ -70,5 +70,5 @@ model:
           - output_classes: 100
   model4:
     model:
-      ResNet50: 100
+      MobileNet: 100
 

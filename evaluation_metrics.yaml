@@ -1,0 +1,25 @@
+# -------------------------------------------------------------------------------------------
+# Metrics Configuration File
+# -------------------------------------------------------------------------------------------
+#
+# Define the metrics to evaluate models.
+#   - Specify the weight for each metric to reflect its priority
+#     (higher weight = more importance).
+#   - If the weight is set to null, the metric will not be considered during evaluation.
+#s
+# Available metrics:
+#   - val_loss: Validation loss (lower is better).
+#   - val_acc: Validation accuracy (higher is better).
+#   - recall: Recall (higher is better).
+#   - fpr: False positive rate (lower is better).
+#   - overfitting_tendency: Overfitting tendency (lower is better).
+#   - complexity: Model complexity (lower is better).
+
+evaluation_metrics:
+  val_loss: 1.0
+  val_acc: 2.0
+  recall: null
+  fpr: null
+  overfitting_tendency: null
+  complexity: null
+

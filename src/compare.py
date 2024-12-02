@@ -87,8 +87,9 @@ if __name__ == "__main__":
 
     results_dir = sys.argv[1]
     results = load_results(results_dir)
-    normalize_results = normalize_results(results, optimization_directions)
     weights, directions = load_metrics_config()
+    normalize_results = normalize_results(results, directions)
+
 
     best_model, best_score = compare_results(normalize_results, weights, directions)
 

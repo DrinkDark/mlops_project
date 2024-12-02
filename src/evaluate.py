@@ -156,6 +156,9 @@ def main() -> None:
     for x_batch, y_batch in test_data:
         batch_size = x_batch.shape[0]
 
+    print(f"Batch size: {batch_size}")
+    print(f"Prediction time: {times}")
+    print(f"Mean prediction time: {np.mean(times)}")
     # Calculate average prediction time in ms
     mean_prediction_time = np.mean(times) / batch_size / 1000
 

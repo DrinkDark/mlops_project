@@ -6,7 +6,7 @@ from typing import List
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-
+import time
 
 def get_training_plot(model_history: dict) -> plt.Figure:
     """Plot the training and validation loss"""

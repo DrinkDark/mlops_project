@@ -14,6 +14,9 @@
 #   - fpr: False positive rate (lower is better).
 #   - overfitting_tendency: Overfitting tendency (lower is better).
 #   - complexity: Model complexity (lower is better).
+#   - prediction_time: Prediction time (lower is better).
+# -------------------------------------------------------------------------------------------
+
 
 evaluation_metrics:
   val_loss: 1.0
@@ -22,6 +25,7 @@ evaluation_metrics:
   fpr: 1.0
   overfitting_tendency: null
   complexity: 1.0
+  prediction_time: null
 
 # Do not modify the following section
 optimization_directions :
@@ -31,4 +35,5 @@ optimization_directions :
   fpr: "minimize"
   overfitting_tendency: "minimize"
   complexity: "minimize"
+  prediction_time: "minimize"
 

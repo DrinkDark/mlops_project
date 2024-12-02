@@ -71,7 +71,6 @@ def compare_results(results, weights):
             if metric in weights and weights[metric] is not None:
                 score += weights[metric] * value
 
-            print(f"{metric}: {value:.6f}")
         if score > best_score:
             best_score = score
             best_model = model
@@ -88,6 +87,8 @@ if __name__ == "__main__":
     weights, directions = load_metrics_config()
     normalize_results = normalize_results(results, directions)
 
+    print("Results", results)
+    print("Normalized results", normalize_results)
     best_model, best_score = compare_results(normalize_results, weights)
 
     model_best_path=Path("model/best-model")

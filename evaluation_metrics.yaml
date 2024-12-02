@@ -6,7 +6,7 @@
 #   - Specify the weight for each metric to reflect its priority
 #     (higher weight = more importance).
 #   - If the weight is set to null, the metric will not be considered during evaluation.
-#s
+#
 # Available metrics:
 #   - val_loss: Validation loss (lower is better).
 #   - val_acc: Validation accuracy (higher is better).
@@ -23,6 +23,7 @@ evaluation_metrics:
   overfitting_tendency: null
   complexity: null
 
+# Do not modify the following section
 optimization_directions :
   val_loss: "minimize"
   val_acc: "maximize"

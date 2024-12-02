@@ -9,7 +9,7 @@ jobs:
   generate-matrix:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.extract-matrix.outputs.matrix }}
+       matrix: ${{ env.matrix }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,7 +24,7 @@ jobs:
         run: |
           pip install pyyaml==6.0.2
           python3.11 src/martix.py > matrix.json
-          echo "::set-output name=matrix::$(cat matrix.json)"
+          echo "matrix=$(cat matrix.json)" >> $GITHUB_ENV
 
         
 
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: generate-matrix
     strategy:
-      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+      matrix: ${{ fromJson(env.matrix) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

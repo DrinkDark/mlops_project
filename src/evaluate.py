@@ -137,6 +137,23 @@ def main() -> None:
     # Log metrics
 
     val_loss, val_acc = model.evaluate(ds_test)
+
+    # Measure prediction time
+    test_data = ds_test.take(1)
+
+    predictions = model.predict(test_data)
+
+    # Measure prediction time over 100 iterations
+    times = []
+    for predictions in range(100):
+        start_time = time.time()
+        predictions = model.predict(test_data)
+        end_time = time.time()
+        times.append(end_time - start_time)
+
+    # Calculate average prediction time
+    mean_time = np.mean(times) / ds_test.element_spec[0].shape[0]
+
     conf_matrix = tf.math.confusion_matrix(
         labels=tf.concat([y for _, y in ds_test], axis=0),
         predictions=tf.argmax(model.predict(ds_test), axis=1),
@@ -185,6 +202,8 @@ def main() -> None:
     print(f"Validation loss: {val_loss:.2f}")
 
     print(f"Validation accuracy: {val_acc * 100:.2f}%")
+
+    print(f"Average prediction time: {mean_time:.6f} s")
 
     print(f"Recall: {recall:.2f}")
 

@@ -24,8 +24,11 @@ jobs:
         run: |
           pip install pyyaml==6.0.2
           python3.11 src/martix.py > matrix.json
-          matrix=$(cat matrix.json)
+          matrix=$(cat matrix.json | jq -c .)
           echo "::set-output name=matrix::$matrix"
+
+      - name: Debug generated matrix
+        run: cat matrix.json
 
         
 

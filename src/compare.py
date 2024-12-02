@@ -65,6 +65,7 @@ def compare_results(results, weights, directions):
 
     # Iterate through each model and calculate weighted scores
     for model, model_metrics in results.items():
+        print(model)
         score = 0
         for metric, value in model_metrics.items():
             if metric in weights and weights[metric] is not None:
@@ -74,6 +75,7 @@ def compare_results(results, weights, directions):
                 else:
                     # Lower values are better; invert the value
                     score += weights[metric] * (1 - value)  # Assumes normalized value in [0, 1]
+            print(f"{metric}: {value:.6f}")
         if score > best_score:
             best_score = score
             best_model = model
@@ -89,7 +91,6 @@ if __name__ == "__main__":
     results = load_results(results_dir)
     weights, directions = load_metrics_config()
     normalize_results = normalize_results(results, directions)
-
 
     best_model, best_score = compare_results(normalize_results, weights, directions)
 

@@ -153,7 +153,7 @@ def main() -> None:
 
     # Get batch size
     batch_size = 0
-    for x_batch, y_batch in ds_train.take(1):
+    for x_batch, y_batch in test_data:
         batch_size = x_batch.shape[0]
 
     # Calculate average prediction time

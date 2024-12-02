@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: pip install --requirement requirements-freeze.txt
 
-      - name: check ficher in
+      - name: Check file in
         run: |
           echo "Data train in:"
           ls -R model
@@ -43,7 +43,7 @@ jobs:
         run: |
           python3.11 src/evaluate.py ${{ matrix.model }} data/prepared
 
-      - name: check ficher out
+      - name: Check file out
         run: |
           echo "Data train out"
           ls -R model
@@ -102,9 +102,9 @@ jobs:
           ls -R model
           ls -R evaluation
   
-      - name: compar and select model
+      - name: Compare and select best model
         run: |
-          python3.11 src/comp.py evaluation
+          python3.11 src/compare.py evaluation
 
       - name: Merge test branch into main
         if: success()  

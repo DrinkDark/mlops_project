@@ -135,11 +135,69 @@ def main() -> None:
     model_history = np.load(model_folder / "history.npy", allow_pickle=True).item()
 
     # Log metrics
+
     val_loss, val_acc = model.evaluate(ds_test)
+    conf_matrix = tf.math.confusion_matrix(
+        labels=tf.concat([y for _, y in ds_test], axis=0),
+        predictions=tf.argmax(model.predict(ds_test), axis=1),
+        num_classes=len(labels)
+    ).numpy()  # Convert to numpy for easier slicing
+
+    # Initialize metric dictionaries
+
+    metrics = {'TP': [], 'FP': [], 'FN': [], 'TN': []}
+    total_samples = np.sum(conf_matrix)
+    total_recall = 0
+    total_fpr = 0
+    num_classes = conf_matrix.shape[0]
+
+    for i in range(num_classes):  # Iterate over each class
+        TP = conf_matrix[i, i]
+        FN = np.sum(conf_matrix[i, :]) - TP
+        FP = np.sum(conf_matrix[:, i]) - TP
+        TN = total_samples - (TP + FP + FN)
+        TPR = TP / (TP + FN) if (TP + FN) > 0 else 0
+        FPR = FP / (FP + TN) if (FP + TN) > 0 else 0
+
+        # Accumulate TPR and FPR
+
+        total_recall += TPR
+        total_fpr += FPR
+
+    # Calculate averages
+
+    recall = total_recall / num_classes
+
+    FPR = total_fpr / num_classes
+
+    # Overfitting Tendency
+
+    training_loss = model_history['loss'][-1]
+
+    validation_loss = model_history['val_loss'][-1]
+
+    overfitting_tendency = training_loss - validation_loss
+
+    # Complexity (Number of Parameters)
+
+    complexity = model.count_params()
+
     print(f"Validation loss: {val_loss:.2f}")
+
     print(f"Validation accuracy: {val_acc * 100:.2f}%")
+
+    print(f"Recall: {recall:.2f}")
+
+    print(f"False Positive Rate: {FPR:.2f}")
+
+    print(f"Overfitting tendency: {overfitting_tendency:.2f}")
+
+    print(f"Complexity: {complexity:.2f} parmeters")
+
     with open(evaluation_folder / "metrics.json", "w") as f:
-        json.dump({"val_loss": val_loss, "val_acc": val_acc}, f)
+
+        json.dump({"val_loss": val_loss, "val_acc": val_acc, "recall": recall, "fpr": FPR,
+                   "overfitting_tendency": overfitting_tendency, "complexity": complexity}, f)
 
     # Save training history plot
     fig = get_training_plot(model_history)

@@ -17,7 +17,7 @@ def load_results(results_dir):
 
 def normalize_results(results, optimization_directions):
     """
-    Normalize the metrics across all models using min-max normalization,
+    Normalize the metrics across all models using 0-max normalization,
     considering whether each metric should be maximized or minimized.
     """
     # Collect all metrics keys and initialize min/max dictionaries
@@ -42,11 +42,11 @@ def normalize_results(results, optimization_directions):
 
             if max_val > min_val:  # Avoid division by zero
                 if optimization_directions.get(metric, "maximize") == "maximize":
-                    normalized_value = (value - min_val) / (max_val - min_val)  # Higher is better
-                else:  # Minimize
-                    normalized_value = (max_val - value) / (max_val - min_val)  # Lower is better
+                    normalized_value = (value-0) / (max_val-0)
+                else:
+                    normalized_value = ((1/value)-0) / ((1/min_val)-0)
             else:
-                normalized_value = 0  # If all values are the same, normalize to 0
+                normalized_value = 0
 
             normalized_results[model][metric] = normalized_value
 
@@ -65,7 +65,6 @@ def compare_results(results, weights):
 
     # Iterate through each model and calculate weighted scores
     for model, model_metrics in results.items():
-        print(model)
         score = 0
         for metric, value in model_metrics.items():
             if metric in weights and weights[metric] is not None:
@@ -87,8 +86,6 @@ if __name__ == "__main__":
     weights, directions = load_metrics_config()
     normalize_results = normalize_results(results, directions)
 
-    print("Results", results)
-    print("Normalized results", normalize_results)
     best_model, best_score = compare_results(normalize_results, weights)
 
     model_best_path=Path("model/best-model")

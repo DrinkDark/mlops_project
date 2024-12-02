@@ -6,64 +6,64 @@ on:
     branches:
       - main
 jobs:
-  data-train-evaluate:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        model: [model1, model2, model3]
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-
-      - name: Install dependencies
-        run: pip install --requirement requirements-freeze.txt
-
-      - name: Check file in
-        run: |
-          echo "Data train in:"
-          ls -R model
-          ls -R evaluation
-
-      - name: Prepare Data
-        run: |
-          python3.11 src/prepare.py data/prepared
-
-      - name: Train Model for ${{ matrix.model }}
-        run: |
-          python3.11 src/train.py data/prepared ${{ matrix.model }}
-
-      - name: Evaluate Model for ${{ matrix.model }}
-        run: |
-          python3.11 src/evaluate.py ${{ matrix.model }} data/prepared
-
-      - name: Check file out
-        run: |
-          echo "Data train out"
-          ls -R model
-          ls -R evaluation
-
-      - name: Upload evaluation
-        uses: actions/upload-artifact@v4
-        with:
-          name: ev-${{ matrix.model }}
-          path: |
-            evaluation/${{ matrix.model }}
-          overwrite: true
-
-      - name: Upload model
-        uses: actions/upload-artifact@v4
-        with:
-          name: model-${{ matrix.model }}
-          path: |
-            model/${{ matrix.model }}
-          overwrite: true
+#  data-train-evaluate:
+#    runs-on: ubuntu-latest
+#    strategy:
+#      matrix:
+#        model: [model1, model2, model3]
+#
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v4
+#
+#      - name: Setup Python
+#        uses: actions/setup-python@v5
+#        with:
+#          python-version: '3.11'
+#          cache: 'pip'
+#
+#      - name: Install dependencies
+#        run: pip install --requirement requirements-freeze.txt
+#
+#      - name: Check file in
+#        run: |
+#          echo "Data train in:"
+#          ls -R model
+#          ls -R evaluation
+#
+#      - name: Prepare Data
+#        run: |
+#          python3.11 src/prepare.py data/prepared
+#
+#      - name: Train Model for ${{ matrix.model }}
+#        run: |
+#          python3.11 src/train.py data/prepared ${{ matrix.model }}
+#
+#      - name: Evaluate Model for ${{ matrix.model }}
+#        run: |
+#          python3.11 src/evaluate.py ${{ matrix.model }} data/prepared
+#
+#      - name: Check file out
+#        run: |
+#          echo "Data train out"
+#          ls -R model
+#          ls -R evaluation
+#
+#      - name: Upload evaluation
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: ev-${{ matrix.model }}
+#          path: |
+#            evaluation/${{ matrix.model }}
+#          overwrite: true
+#
+#      - name: Upload model
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: model-${{ matrix.model }}
+#          path: |
+#            model/${{ matrix.model }}
+#          overwrite: true
 
   compare-merge:
     runs-on: ubuntu-latest

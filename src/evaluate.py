@@ -151,8 +151,13 @@ def main() -> None:
         end_time = time.time()
         times.append(end_time - start_time)
 
+    # Get batch size
+    batch_size = 0
+    for x_batch, y_batch in ds_train.take(1):
+        batch_size = x_batch.shape[0]
+
     # Calculate average prediction time
-    mean_time = np.mean(times) / ds_test.element_spec[0].shape[0]
+    mean_time = np.mean(times) / batch_size
 
     conf_matrix = tf.math.confusion_matrix(
         labels=tf.concat([y for _, y in ds_test], axis=0),

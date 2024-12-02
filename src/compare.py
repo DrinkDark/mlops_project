@@ -56,12 +56,10 @@ def load_metrics_config():
     config = yaml.safe_load(open("evaluation_metrics.yaml"))
     return config["evaluation_metrics"], config["optimization_directions"]
 
-def compare_results(results):
+def compare_results(results, weights, directions):
     """
     Compare models based on weighted and normalized metrics, considering directions.
     """
-    weights, directions = load_metrics_config()
-
     best_model = None
     best_score = float('-inf')
 
@@ -89,9 +87,10 @@ if __name__ == "__main__":
 
     results_dir = sys.argv[1]
     results = load_results(results_dir)
-    normalize_results = normalize_results(results)
+    normalize_results = normalize_results(results, optimization_directions)
+    weights, directions = load_metrics_config()
 
-    best_model, best_score = compare_results(normalize_results)
+    best_model, best_score = compare_results(normalize_results, weights, directions)
 
     model_best_path=Path("model/best-model")
     ev_best_path=Path("evaluation/best-model")

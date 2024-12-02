@@ -9,7 +9,7 @@ jobs:
   generate-matrix:
     runs-on: ubuntu-latest
     outputs:
-       matrix: ${{ steps.generate.outputs.matrix }}
+       matrix: ${{ steps.extract-matrix.outputs.matrix }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

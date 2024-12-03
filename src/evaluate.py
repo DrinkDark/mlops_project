@@ -197,11 +197,9 @@ def main() -> None:
     FPR = total_fpr / num_classes
 
     # Calculate F1 Score
-    f1_score = 2 / (1 / recall + 1 / val_acc)
-    print(f"F1 Score: {f1_score:.2f}")
+
     f1_score = TP / (TP + 0.5 * (FP + FN))
-    print(f"F1 Score: {f1_score:.2f}")
-    
+
     # Overfitting Tendency
 
     training_loss = model_history['loss'][-1]
@@ -224,13 +222,15 @@ def main() -> None:
 
     print(f"False Positive Rate: {FPR:.2f}")
 
+    print(f"F1 Score: {f1_score:.2f}")
+
     print(f"Overfitting tendency: {overfitting_tendency:.2f}")
 
     print(f"Complexity: {complexity:.2f} parmeters")
 
     with open(evaluation_folder / "metrics.json", "w") as f:
 
-        json.dump({"val_loss": val_loss, "val_acc": val_acc, "recall": recall, "fpr": FPR,
+        json.dump({"val_loss": val_loss, "val_acc": val_acc, "recall": recall, "fpr": FPR, "f1_score": f1_score,
                    "overfitting_tendency": overfitting_tendency, "complexity": complexity, "mean_predictions_time": mean_prediction_time}, f)
 
     # Save training history plot

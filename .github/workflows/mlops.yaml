@@ -130,7 +130,7 @@ jobs:
   
       - name: compar and select model
         run: |
-          python3.11 src/comp.py evaluation
+          python3.11 src/compare.py evaluation
 
       - name: Merge test branch into main
         if: success()  

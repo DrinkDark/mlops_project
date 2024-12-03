@@ -12,6 +12,7 @@
 #   - val_acc: Validation accuracy (higher is better).
 #   - recall: Recall (higher is better).
 #   - fpr: False positive rate (lower is better).
+#   - f1_score: F1 score (higher is better).
 #   - overfitting_tendency: Overfitting tendency (lower is better).
 #   - complexity: Model complexity (lower is better).
 #   - prediction_time: Prediction time (lower is better).
@@ -23,6 +24,7 @@ evaluation_metrics:
   val_acc: 5.0
   recall: 1.0
   fpr: 1.0
+  f1_score: null
   overfitting_tendency: null
   complexity: 1.0
   prediction_time: null
@@ -33,6 +35,7 @@ optimization_directions :
   val_acc: "maximize"
   recall: "maximize"
   fpr: "minimize"
+  f1_score: "maximize"
   overfitting_tendency: "minimize"
   complexity: "minimize"
   prediction_time: "minimize"

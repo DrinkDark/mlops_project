@@ -169,6 +169,10 @@ def main() -> None:
 
     metrics = {'TP': [], 'FP': [], 'FN': [], 'TN': []}
     total_samples = np.sum(conf_matrix)
+    TP = 0
+    FN = 0
+    FP = 0
+    TN = 0
     total_recall = 0
     total_fpr = 0
     num_classes = conf_matrix.shape[0]
@@ -192,6 +196,12 @@ def main() -> None:
 
     FPR = total_fpr / num_classes
 
+    # Calculate F1 Score
+    f1_score = 2 / (1 / recall + 1 / val_acc)
+    print(f"F1 Score: {f1_score:.2f}")
+    f1_score = TP / (TP + 0.5 * (FP + FN))
+    print(f"F1 Score: {f1_score:.2f}")
+    
     # Overfitting Tendency
 
     training_loss = model_history['loss'][-1]

@@ -6,7 +6,7 @@ from typing import List
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-
+import time
 
 def get_training_plot(model_history: dict) -> plt.Figure:
     """Plot the training and validation loss"""
@@ -137,6 +137,28 @@ def main() -> None:
     # Log metrics
 
     val_loss, val_acc = model.evaluate(ds_test)
+
+    # Measure prediction time
+    test_data = ds_test.take(1)
+
+    predictions = model.predict(test_data)
+
+    # Measure prediction time over 100 iterations
+    times = []
+    for predictions in range(100):
+        start_time = time.time()
+        predictions = model.predict(test_data)
+        end_time = time.time()
+        times.append(end_time - start_time)
+
+    # Get batch size
+    batch_size = 0
+    for x_batch, y_batch in test_data:
+        batch_size = x_batch.shape[0]
+
+    # Calculate average prediction time in ms
+    mean_prediction_time = np.mean(times) / batch_size * 1000
+
     conf_matrix = tf.math.confusion_matrix(
         labels=tf.concat([y for _, y in ds_test], axis=0),
         predictions=tf.argmax(model.predict(ds_test), axis=1),
@@ -147,6 +169,10 @@ def main() -> None:
 
     metrics = {'TP': [], 'FP': [], 'FN': [], 'TN': []}
     total_samples = np.sum(conf_matrix)
+    TP = 0
+    FN = 0
+    FP = 0
+    TN = 0
     total_recall = 0
     total_fpr = 0
     num_classes = conf_matrix.shape[0]
@@ -170,6 +196,10 @@ def main() -> None:
 
     FPR = total_fpr / num_classes
 
+    # Calculate F1 Score
+
+    f1_score = TP / (TP + 0.5 * (FP + FN))
+
     # Overfitting Tendency
 
     training_loss = model_history['loss'][-1]
@@ -186,9 +216,13 @@ def main() -> None:
 
     print(f"Validation accuracy: {val_acc * 100:.2f}%")
 
+    print(f"Average prediction time: {mean_prediction_time:.6f} ms")
+
     print(f"Recall: {recall:.2f}")
 
     print(f"False Positive Rate: {FPR:.2f}")
+
+    print(f"F1 Score: {f1_score:.2f}")
 
     print(f"Overfitting tendency: {overfitting_tendency:.2f}")
 
@@ -196,8 +230,8 @@ def main() -> None:
 
     with open(evaluation_folder / "metrics.json", "w") as f:
 
-        json.dump({"val_loss": val_loss, "val_acc": val_acc, "recall": recall, "fpr": FPR,
-                   "overfitting_tendency": overfitting_tendency, "complexity": complexity}, f)
+        json.dump({"val_loss": val_loss, "val_acc": val_acc, "recall": recall, "fpr": FPR, "f1_score": f1_score,
+                   "overfitting_tendency": overfitting_tendency, "complexity": complexity, "mean_predictions_time": mean_prediction_time}, f)
 
     # Save training history plot
     fig = get_training_plot(model_history)

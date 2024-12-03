@@ -88,8 +88,8 @@ if __name__ == "__main__":
 
     best_model, best_score = compare_results(normalize_results, weights)
 
-    model_best_path=Path("model/best-model")
-    ev_best_path=Path("evaluation/best-model")
+    model_best_path=Path("model/ev-modelBest")
+    ev_best_path=Path("evaluation/model-modelBest")
 
     shutil.copytree("model/model-{}".format(best_model),model_best_path,dirs_exist_ok=True)
     shutil.copytree("evaluation/ev-{}".format(best_model),ev_best_path,dirs_exist_ok=True)

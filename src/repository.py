@@ -29,8 +29,7 @@ class RepositoryModel():
         if version== None:
             tag=name
         else:
-            tag.name=name
-            tag.version=version
+            tag=bentoml.Tag(name=name,version=version)
         bentoml.models.export_model(
             tag,
             self.MODEL_FOLDER + "/" + f"{name}.bentomodel",

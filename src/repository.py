@@ -3,7 +3,7 @@ import math
 
 class RepositoryModel():
     def __init__(self, MODEL_FOLDER= "model"):
-        self.MODEL_FOLDER = MODEL_FOLDER
+        self.MODEL_FOLDER = str(MODEL_FOLDER)
      
 
     def save_model(self, name, model, preprocess=False, postprocess=False, metadata=None):

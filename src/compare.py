@@ -134,8 +134,8 @@ def compare_results(results, weights):
     weighted_matrix = np.array(weighted_matrix).T  # Transpose for metrics in rows
 
     # Plot heatmap manually
-    fig_width = len(models) * 1.2  
-    fig_height = len(metrics_with_total) * 1.2 + 8
+    fig_width = len(models) * 1.4  
+    fig_height = len(metrics_with_total) * 1.2 + 5
     fig, ax = plt.subplots(figsize=(fig_width, fig_height))
     cax = ax.matshow(weighted_matrix, cmap="coolwarm")
 

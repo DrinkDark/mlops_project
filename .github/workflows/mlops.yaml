@@ -152,6 +152,7 @@ jobs:
           git add -f model/list_model.json
           git add -f evaluation/ev-modelBest
           git add -f evaluation/weighted_metrics_heatmap.png
+          git add -f evaluation/report.html
           git commit -m "Add all trained models and evaluations"
           git push origin main
         env:

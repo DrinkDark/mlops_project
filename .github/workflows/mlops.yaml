@@ -51,6 +51,11 @@ jobs:
       - name: Install dependencies
         run: pip install --requirement requirements-freeze.txt
 
+      - name: Set API Key bento
+        run: |
+          bentoml cloud login --api-token ${{ secrets.BENTO_API_KEY }}
+          bentoml cloud update-current-context default
+
       - name: check ficher in
         run: |
           echo "Data train in:"
@@ -108,6 +113,11 @@ jobs:
       - name: Install dependencies
         run: pip install --requirement requirements-freeze.txt
 
+      - name: Set API Key bento
+        run: |
+          bentoml cloud login --api-token ${{ secrets.BENTO_API_KEY }}
+          bentoml cloud update-current-context default
+
       - name: Download evaluation 
         uses: actions/download-artifact@v4
         with:
@@ -137,8 +147,11 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add -f model/
-          git add -f evaluation/
+          git config --global http.postBuffer 157286400  # 150 MB
+          git add -f model/model-modelBest
+          git add -f model/list_model.json
+          git add -f evaluation/ev-modelBest
+          git add -f evaluation/weighted_metrics_heatmap.png
           git commit -m "Add all trained models and evaluations"
           git push origin main
         env:

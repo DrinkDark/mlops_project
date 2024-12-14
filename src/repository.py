@@ -22,12 +22,15 @@ class RepositoryModel():
         )
         return bento_model
 
-    def export_model(self, name,tag=None):
+    def export_model(self, name,version = None):
         '''
         Exports a model from the BentoML store to a .bentomodel file, making it portable or sharable.
         '''
-        if tag==None:
+        if version== None:
             tag=name
+        else:
+            tag.name=name
+            tag.version=version
         bentoml.models.export_model(
             tag,
             self.MODEL_FOLDER + "/" + f"{name}.bentomodel",

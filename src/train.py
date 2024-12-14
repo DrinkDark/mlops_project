@@ -246,7 +246,7 @@ def main() -> None:
         print(f"\nModel saved at {model_folder.absolute()}")
     else:
         #juste save model and history
-        repr.export_model("bento-model",tag=ex_bento_model.tag)
+        repr.export_model("bento-model",version=ex_bento_model.tag.version)
         model_path = model_folder / "model.keras"
         existing_model.save(model_path)
         model_folder.mkdir(parents=True, exist_ok=True)

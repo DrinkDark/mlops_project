@@ -136,6 +136,21 @@ def get_model_from_config(image_shape: Tuple[int, int, int], config: dict,seed=1
     return model
 
 
+def check_model_exist(model,params,repo):
+    """
+    check if a model is alrady train
+    if true reture model and metadata
+    if false return none
+    """
+    root_dir="model"
+    list_model_path=root_dir+"/list_model.json"
+    if os.path.exists(list_model_path):
+        if os.path.getsize(list_model_path) != 0:
+            with open(list_model_path, "r", encoding="utf-8") as file:
+                model_list = json.load(file)
+            return repo.comp_list_model(model,params,model_list)
+        return None,None
+
 
 def main() -> None:
     if len(sys.argv) != 3:
@@ -178,9 +193,6 @@ def main() -> None:
     
     param={"seed":seed,"lr":lr,"epochs":epochs}
 
-    
-
-
     # Set seed for reproducibility
     set_seed(seed)
 
@@ -200,38 +212,48 @@ def main() -> None:
         metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
     )
     model.summary()
+    repr = rs.RepositoryModel(model_folder)
+    existing_model,ex_bento_model=check_model_exist(model=model,params=param,repo=repo)
 
     #check if existe
-    
-    # Train the model
-    model.fit(
-        ds_train,
-        epochs=epochs,
-        validation_data=ds_val,
-    )
-    #save model bento
-    repr = rs.RepositoryModel(model_folder)
-    bento_model=repr.save_model(
-        name="bento-model"
-        ,model=model,
-        metadata={
-            "seed" : seed,
-            "lr": lr,
-            "epochs": epochs,
-        }
-    )
-    # Save the model
-    model_folder.mkdir(parents=True, exist_ok=True)
-    repr.export_model("bento-model")
-    model_path = model_folder / "model.keras"
-    model.save(model_path)
-    # Save the model history
-    np.save(model_folder / "history.npy", model.history.history)
+    if existing_model ==None:
+        # Train the model
+        model.fit(
+            ds_train,
+            epochs=epochs,
+            validation_data=ds_val,
+        )
+        #save model bento
+        
+        bento_model=repr.save_model(
+            name="bento-model"
+            ,model=model,
+            metadata={
+                "seed" : seed,
+                "lr": lr,
+                "epochs": epochs,
+            }
+        )
+        # Save the model
+        model_folder.mkdir(parents=True, exist_ok=True)
+        repr.export_model("bento-model")
+        model_path = model_folder / "model.keras"
+        model.save(model_path)
+        # Save the model history
+        np.save(model_folder / "history.npy", model.history.history)
 
-    with open(model_folder / "name_model.json", "w") as f:
-        json.dump({"name_model": str(bento_model.tag)}, f)
-    print(f"\nModel saved at {model_folder.absolute()}")
-
+        with open(model_folder / "name_model.json", "w") as f:
+            json.dump({"name_model": str(bento_model.tag)}, f)
+        print(f"\nModel saved at {model_folder.absolute()}")
+    else:
+        #juste save model and history
+        model_folder.mkdir(parents=True, exist_ok=True)
+        repr.export_model("bento-model",tag=ex_bento_model.tag)
+        model_path = model_folder / "model.keras"
+        existing_model.save(model_path)
+        model_folder.mkdir(parents=True, exist_ok=True)
+        np.save(model_folder / "history.npy", ex_bento_model.info.metadata)
+        
 
 
 if __name__ == "__main__":

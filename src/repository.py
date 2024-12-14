@@ -22,12 +22,14 @@ class RepositoryModel():
         )
         return bento_model
 
-    def export_model(self, name):
+    def export_model(self, name,tag=None):
         '''
         Exports a model from the BentoML store to a .bentomodel file, making it portable or sharable.
         '''
+        if tag==None:
+            tag=name
         bentoml.models.export_model(
-            name,
+            tag,
             self.MODEL_FOLDER + "/" + f"{name}.bentomodel",
         )
     
@@ -66,7 +68,7 @@ class RepositoryModel():
         except bentoml.exceptions.BentoMLException:
             print("Model already exists in the model store - skipping import.")
 
-    def import_load_model(self, name):
+    def import_load_model(self, name,folder=None):
         '''
         Imports a .bentomodel file into the BentoML store (if not already there) and loads the model for use.
         '''
@@ -117,7 +119,7 @@ class RepositoryModel():
                 if bento_model.info.metadata["seed"]==params["seed"]:
                     if bento_model.info.metadata["lr"]==params["lr"]:
                         if bento_model.info.metadata["epochs"]==params["epochs"]:
-                            return model,bento_model.info.metadata
+                            return model,bento_model
         return None,None
 
     def get_top_models_by_metric(self, metric_key, optimum=1, top_n=10):

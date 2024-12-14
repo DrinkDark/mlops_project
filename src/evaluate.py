@@ -141,7 +141,7 @@ def main() -> None:
         labels = json.load(f)
 
     # load model to bentoml
-    repr = rs.RepositoryModel()
+    repr = rs.RepositoryModel(model_folder)
     if os.path.exists(os.path.join(model_folder, "name_model.json")):
         model = repr.import_load_model(name="bento-model")
         model_history = np.load(model_folder / "history.npy", allow_pickle=True).item()
@@ -287,7 +287,10 @@ def main() -> None:
         with open(evaluation_folder / "metrics.json", "w") as f:
             json.dump({"val_loss": metadata["val_loss"], "val_acc": metadata["val_acc"], "recall": metadata["recall"], "fpr": metadata["fpr"], "f1_score": metadata["f1_score"],
                  "overfitting_tendency": metadata["overfitting_tendency"], "complexity": metadata["complexity"], "mean_predictions_time": metadata["mean_predictions_time"]}, f)
-            
+
+        #add the name_model.json
+        with open(model_folder / "name_model.json", "w") as f:
+            json.dump({"name_model": str(model_bento.tag)}, f)
         # Save training history plot
         fig = get_training_plot(metadata["model_history"])
         fig.savefig(evaluation_folder / plots_folder / "training_history.png")

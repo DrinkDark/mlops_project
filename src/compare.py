@@ -14,7 +14,6 @@ def load_results(results_dir,repo:rs.RepositoryModel):
     for sub_dir in Path(results_dir).iterdir():
         if sub_dir.is_dir():
             repo.import_model("bento-model","model/model-"+sub_dir.name[3:])
-           
             json_files = list(sub_dir.glob("*.json"))
             if json_files:
                 json_file = json_files[0]

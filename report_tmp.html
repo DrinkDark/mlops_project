@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Static Model Metrics Dashboard</title>
+  <script src="https://cdn.plot.ly/plotly-2.25.2.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      padding: 20px;
+    }
+    .container {
+      margin-bottom: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="text-center">Model Metrics Comparison</h1>
+    <div id="performance-graph"></div>
+    <div id="loss-graph"></div>
+    <div id="overfitting-graph"></div>
+    <div id="prediction-time-graph"></div>
+    <div id="fpr-graph"></div>
+  </div>
+
+  <div class="container">
+    <h1 class="text-center">Training History Dashboard</h1>
+    <select id="model-dropdown" class="form-select mb-4">
+      <!-- Options will be populated dynamically -->
+    </select>
+    <div class="row">
+      <div class="col-md-6">
+        <div id="loss-history"></div>
+      </div>
+      <div class="col-md-6">
+        <div id="accuracy-history"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1 class="text-center">Confusion Matrix</h1>
+    <div id="confusion-matrix"></div>
+  </div>
+
+  <div class="container">
+    <h1 class="text-center">Weighted metrics heatmap</h1>
+    <img id="output-image" src="weighted_metrics_heatmap.png" alt="Model Output" class="img-fluid">
+  </div>
+
+  <script>
+    // Mock Data for Models
+    const models = {{ models }};
+    const metadatas = {{ metadatas }};
+
+    const dropdown = document.getElementById("model-dropdown");
+    models.forEach((model, index) => {
+      const option = document.createElement("option");
+      option.value = index;
+      option.textContent = model;
+      dropdown.appendChild(option);
+    });
+
+    // Plot Performance Bar Graph
+    Plotly.newPlot("performance-graph", [
+      { x: models, y: metadatas.map(m => m.val_acc), type: 'bar', name: 'Accuracy', marker: { color: 'green' } },
+      { x: models, y: metadatas.map(m => m.recall), type: 'bar', name: 'Recall', marker: { color: 'blue' } },
+      { x: models, y: metadatas.map(m => m.f1_score), type: 'bar', name: 'F1 Score', marker: { color: 'red' } }
+    ], {
+      title: "Performance - Top 10 Models",
+      barmode: 'group',
+      xaxis: { title: "Models" },
+      yaxis: { title: "Performance" }
+    });
+
+    // Plot Loss Bar Graph
+    Plotly.newPlot("loss-graph", [
+      { x: models, y: metadatas.map(m => m.val_loss), type: 'bar', name: 'Loss' }
+    ], {
+      title: "Loss - Top 10 Models",
+      xaxis: { title: "Models" },
+      yaxis: { title: "Loss" }
+    });
+
+    // Plot Overfitting Tendency
+    Plotly.newPlot("overfitting-graph", [
+      { x: models, y: metadatas.map(m => m.overfitting_tendency), type: 'bar', name: 'Overfitting Tendency' }
+    ], {
+      title: "Overfitting Tendency - Top 10 Models",
+      xaxis: { title: "Models" },
+      yaxis: { title: "Overfitting Tendency" }
+    });
+
+    // Plot Prediction Time
+    Plotly.newPlot("prediction-time-graph", [
+      { x: models, y: metadatas.map(m => m.mean_predictions_time), type: 'bar', name: 'Prediction Time' }
+    ], {
+      title: "Mean Predictions Time - Top 10 Models",
+      xaxis: { title: "Models" },
+      yaxis: { title: "Prediction Time (ms)" }
+    });
+
+    // Plot False Positive Rate
+    Plotly.newPlot("fpr-graph", [
+      { x: models, y: metadatas.map(m => m.fpr), type: 'bar', name: 'False Positive Rate' }
+    ], {
+      title: "False Positive Rate - Top 10 Models",
+      xaxis: { title: "Models" },
+      yaxis: { title: "FPR" }
+    });
+
+    // Update Training History Graphs
+    const updateGraphs = (selectedModel) => {
+      const metadata = metadatas[selectedModel];
+
+      // Loss Graph
+      Plotly.newPlot("loss-history", [
+        { x: Array.from({ length: metadata.epochs }, (_, i) => i + 1), y: metadata.model_history.loss, mode: 'lines', name: 'Loss' },
+        { x: Array.from({ length: metadata.epochs }, (_, i) => i + 1), y: metadata.model_history.val_loss, mode: 'lines', name: 'Validation Loss' }
+      ], {
+        title: `Loss History for ${models[selectedModel]}`,
+        xaxis: { title: "Epoch" },
+        yaxis: { title: "Loss" }
+      });
+
+      // Accuracy Graph
+      Plotly.newPlot("accuracy-history", [
+        { x: Array.from({ length: metadata.epochs }, (_, i) => i + 1), y: metadata.model_history.sparse_categorical_accuracy, mode: 'lines', name: 'Accuracy' },
+        { x: Array.from({ length: metadata.epochs }, (_, i) => i + 1), y: metadata.model_history.val_sparse_categorical_accuracy, mode: 'lines', name: 'Validation Accuracy' }
+      ], {
+        title: `Accuracy History for ${models[selectedModel]}`,
+        xaxis: { title: "Epoch" },
+        yaxis: { title: "Accuracy" }
+      });
+
+      // Confusion Matrix
+      Plotly.newPlot("confusion-matrix", [
+        {
+          z: metadata.confusion_matrix.matrix,
+          x: metadata.confusion_matrix.label,
+          y: metadata.confusion_matrix.label,
+          type: 'heatmap',
+          colorscale: 'Blues',
+          text: metadata.confusion_matrix.matrix,
+          texttemplate: '%{text}'
+        }
+      ], {
+        title: "Confusion Matrix",
+        xaxis: { title: "Predicted Labels" },
+        yaxis: { title: "True Labels" }
+      });
+    };
+
+    // Initialize with the first model
+    updateGraphs(0);
+
+    // Handle Dropdown Change
+    dropdown.addEventListener("change", (event) => {
+      updateGraphs(event.target.value);
+    });
+  </script>
+</body>
+</html>

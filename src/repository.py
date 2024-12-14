@@ -2,7 +2,9 @@ import bentoml
 import math
 
 class RepositoryModel():
-    MODEL_FOLDER = "model/"
+    def __init__(self, MODEL_FOLDER= "model"):
+        self.MODEL_FOLDER = MODEL_FOLDER
+     
 
     def save_model(self, name, model, preprocess=False, postprocess=False, metadata=None):
         '''
@@ -26,7 +28,7 @@ class RepositoryModel():
         '''
         bentoml.models.export_model(
             name,
-            RepositoryModel.MODEL_FOLDER + f"{name}.bentomodel",
+            self.MODEL_FOLDER + "/" + f"{name}.bentomodel",
         )
     
     def get_best_model(self, metric, optimum=1):
@@ -50,20 +52,25 @@ class RepositoryModel():
         '''
         best_model = self.get_best_model(metric, optimum)
         if best_model:
-            self.export_model(metric, best_model.name, RepositoryModel.MODEL_FOLDER + f"{best_model.name}.bentomodel")
+            self.export_model(metric, best_model.name, self.MODEL_FOLDER+"/" + f"{best_model.name}.bentomodel")
             return best_model
         else:
             print(f"No model with {metric} metric found.")
+
+    def import_model(self, name,folder=None):
+        if folder==None:
+            folder=self.MODEL_FOLDER
+        print(folder+"/" + f"{name}.bentomodel")
+        try:
+            bentoml.models.import_model(folder +"/"+ f"{name}.bentomodel")
+        except bentoml.exceptions.BentoMLException:
+            print("Model already exists in the model store - skipping import.")
 
     def import_load_model(self, name):
         '''
         Imports a .bentomodel file into the BentoML store (if not already there) and loads the model for use.
         '''
-        try:
-            bentoml.models.import_model(RepositoryModel.MODEL_FOLDER + f"{name}.bentomodel")
-        except bentoml.exceptions.BentoMLException:
-            print("Model already exists in the model store - skipping import.")
-
+        self.import_model(name)
         model = bentoml.keras.load_model(name)
         return model
     

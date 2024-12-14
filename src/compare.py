@@ -7,11 +7,14 @@ import yaml
 import repository as rs
 import numpy as np
 import os
+import report
 
-def load_results(results_dir):
+def load_results(results_dir,repo:rs.RepositoryModel):
     results = {}
     for sub_dir in Path(results_dir).iterdir():
         if sub_dir.is_dir():
+            repo.import_model("bento-model","model/model-"+sub_dir.name[3:])
+           
             json_files = list(sub_dir.glob("*.json"))
             if json_files:
                 json_file = json_files[0]
@@ -96,9 +99,16 @@ def compare_results(results, weights):
     best_score = float('-inf')
 
      # Prepare data for heatmap
-    models = list(results.keys())
+    models =[]
+    for name in results.keys():
+        json_files = list(Path("model/model-"+name).glob("*.json"))
+        json_file = json_files[0]
+        with open(json_file, 'r') as f:
+                name_file = json.load(f)
+        name_model = name_file.get("name_model")
+        models.append(name_model)
     metrics = list(weights.keys())
-    
+    valid_metrics = [metric for metric in metrics if metric in weights and weights[metric] is not None]
     # Create a matrix to store weighted values
     weighted_matrix = []
 
@@ -106,13 +116,12 @@ def compare_results(results, weights):
     for model, model_metrics in results.items():
         row = []
         score = 0
-        for metric, value in model_metrics.items():
-            if metric in weights and weights[metric] is not None:
-                weighted_value=weights[metric] * value
+        for metric  in valid_metrics:
+            if metric in model_metrics:
+                weighted_value = weights[metric] * model_metrics[metric]
                 row.append(weighted_value)
                 score += weighted_value
-            else:
-                row.append(0)
+
         row.append(score)
         weighted_matrix.append(row)
         if score > best_score:
@@ -120,13 +129,15 @@ def compare_results(results, weights):
             best_model = model
 
     # Add metric labels including 'Total'
-    metrics_with_total = metrics + ['Total']
+    metrics_with_total = valid_metrics + ['Total']
 
     # Convert to numpy array for visualization
     weighted_matrix = np.array(weighted_matrix).T  # Transpose for metrics in rows
 
     # Plot heatmap manually
-    fig, ax = plt.subplots(figsize=(10, 8))
+    fig_width = len(models) * 1.2  
+    fig_height = len(metrics_with_total) * 1.2 + 8
+    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
     cax = ax.matshow(weighted_matrix, cmap="coolwarm")
 
     # Add color bar
@@ -137,6 +148,7 @@ def compare_results(results, weights):
     ax.set_yticks(range(len(metrics_with_total)))
     ax.set_xticklabels(models, rotation=45, ha="left")
     ax.set_yticklabels(metrics_with_total)
+
 
     # Annotate each cell with its value
     for i in range(len(metrics_with_total)):
@@ -158,17 +170,18 @@ if __name__ == "__main__":
         print("Usage: python compare_results.py <results_dir>")
         sys.exit(1)
 
-
+    repo=rs.RepositoryModel()
     udate_list_model()
     with open("model/list_model.json", "r", encoding="utf-8") as file:
             model_list = json.load(file)
 
     results_dir = sys.argv[1]
-    results = load_results(results_dir)
+    results = load_results(results_dir,repo=repo)
     weights, directions = load_metrics_config()
     normalize_results = normalize_results(results, directions)
 
     best_model, best_score = compare_results(normalize_results, weights)
+    report.creat_report()
 
     model_best_path=Path("model/model-modelBest")
     ev_best_path=Path("evaluation/ev-modelBest")

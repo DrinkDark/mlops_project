@@ -210,7 +210,7 @@ def main() -> None:
         validation_data=ds_val,
     )
     #save model bento
-    repr = rs.RepositoryModel()
+    repr = rs.RepositoryModel(model_folder)
     bento_model=repr.save_model(
         name="bento-model"
         ,model=model,
@@ -220,9 +220,9 @@ def main() -> None:
             "epochs": epochs,
         }
     )
-    repr.export_model("bento-model")
     # Save the model
     model_folder.mkdir(parents=True, exist_ok=True)
+    repr.export_model("bento-model")
     model_path = model_folder / "model.keras"
     model.save(model_path)
     # Save the model history

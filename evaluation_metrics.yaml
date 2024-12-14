@@ -27,7 +27,7 @@ evaluation_metrics:
   f1_score: 1.0
   overfitting_tendency: null
   complexity: null
-  prediction_time: 5.0
+  mean_predictions_time: 5.0
 
 # Do not modify the following section
 optimization_directions :
@@ -38,5 +38,5 @@ optimization_directions :
   f1_score: "maximize"
   overfitting_tendency: "minimize"
   complexity: "minimize"
-  prediction_time: "minimize"
+  mean_predictions_time: "minimize"
 

@@ -1,8 +1,12 @@
 import json
 import sys
 from pathlib import Path
+import matplotlib.pyplot as plt
 import shutil
 import yaml
+import repository as rs
+import numpy as np
+import os
 
 def load_results(results_dir):
     results = {}
@@ -14,6 +18,34 @@ def load_results(results_dir):
                 with open(json_file, 'r') as f:
                     results[sub_dir.name[3:]] = json.load(f)
     return results
+
+def udate_list_model():
+    root_dir="model"
+    list_model_path=root_dir+"/list_model.json"
+    if os.path.exists(list_model_path):
+        if os.path.getsize(list_model_path) != 0:
+            with open(list_model_path, "r", encoding="utf-8") as file:
+                model_list = json.load(file)
+        else:
+            model_list = []
+    else:
+        model_list = []
+    for subdir in os.listdir(root_dir):
+        subdir_path = os.path.join(root_dir, subdir)
+
+        if os.path.isdir(subdir_path):
+            name_model_path = os.path.join(subdir_path, "name_model.json")
+
+            if os.path.exists(name_model_path):
+                with open(name_model_path, "r", encoding="utf-8") as file:
+                    data = json.load(file)
+                name_model = data.get("name_model")
+                if name_model and name_model not in model_list:
+                    model_list.append(name_model)
+
+    with open(list_model_path, "w", encoding="utf-8") as file:
+        json.dump(model_list, file, ensure_ascii=False, indent=4)
+
 
 def normalize_results(results, optimization_directions):
     """
@@ -63,16 +95,61 @@ def compare_results(results, weights):
     best_model = None
     best_score = float('-inf')
 
+     # Prepare data for heatmap
+    models = list(results.keys())
+    metrics = list(weights.keys())
+    
+    # Create a matrix to store weighted values
+    weighted_matrix = []
+
     # Iterate through each model and calculate weighted scores
     for model, model_metrics in results.items():
+        row = []
         score = 0
         for metric, value in model_metrics.items():
             if metric in weights and weights[metric] is not None:
-                score += weights[metric] * value
-
+                weighted_value=weights[metric] * value
+                row.append(weighted_value)
+                score += weighted_value
+            else:
+                row.append(0)
+        row.append(score)
+        weighted_matrix.append(row)
         if score > best_score:
             best_score = score
             best_model = model
+
+    # Add metric labels including 'Total'
+    metrics_with_total = metrics + ['Total']
+
+    # Convert to numpy array for visualization
+    weighted_matrix = np.array(weighted_matrix).T  # Transpose for metrics in rows
+
+    # Plot heatmap manually
+    fig, ax = plt.subplots(figsize=(10, 8))
+    cax = ax.matshow(weighted_matrix, cmap="coolwarm")
+
+    # Add color bar
+    fig.colorbar(cax, label='Weighted Value')
+
+    # Set axis labels
+    ax.set_xticks(range(len(models)))
+    ax.set_yticks(range(len(metrics_with_total)))
+    ax.set_xticklabels(models, rotation=45, ha="left")
+    ax.set_yticklabels(metrics_with_total)
+
+    # Annotate each cell with its value
+    for i in range(len(metrics_with_total)):
+        for j in range(len(models)):
+            ax.text(j, i, f"{weighted_matrix[i, j]:.2f}", va='center', ha='center', color="black")
+
+    plt.title('Weighted Metrics Heatmap')
+    plt.xlabel('Models')
+    plt.ylabel('Metrics')
+
+    # Save plot as PNG
+    plt.savefig("evaluation/weighted_metrics_heatmap.png")
+    plt.close()
 
     return best_model, best_score
 
@@ -81,6 +158,11 @@ if __name__ == "__main__":
         print("Usage: python compare_results.py <results_dir>")
         sys.exit(1)
 
+
+    udate_list_model()
+    with open("model/list_model.json", "r", encoding="utf-8") as file:
+            model_list = json.load(file)
+
     results_dir = sys.argv[1]
     results = load_results(results_dir)
     weights, directions = load_metrics_config()
@@ -88,11 +170,13 @@ if __name__ == "__main__":
 
     best_model, best_score = compare_results(normalize_results, weights)
 
-    model_best_path=Path("model/ev-modelBest")
-    ev_best_path=Path("evaluation/model-modelBest")
+    model_best_path=Path("model/model-modelBest")
+    ev_best_path=Path("evaluation/ev-modelBest")
 
-    shutil.copytree("model/model-{}".format(best_model),model_best_path,dirs_exist_ok=True)
-    shutil.copytree("evaluation/ev-{}".format(best_model),ev_best_path,dirs_exist_ok=True)
+    print(f"The best model is : {best_model} with a score of : {best_score:.6f}")
+    if best_model !="modelBest":
+        shutil.copytree("model/model-{}".format(best_model),model_best_path,dirs_exist_ok=True)
+        shutil.copytree("evaluation/ev-{}".format(best_model),ev_best_path,dirs_exist_ok=True)
 
     
-    print(f"The best model is : {best_model} with a score of : {best_score:.6f}")
+   

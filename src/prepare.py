@@ -1,32 +1,12 @@
 import json
 import sys
+import numpy as np
 from pathlib import Path
 from typing import List
-
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import yaml
-
 from utils.seed import set_seed
-
-
-def get_preview_plot(ds: tf.data.Dataset, labels: List[str],grayscale=False) -> plt.Figure:
-    """Plot a preview of the prepared dataset"""
-    fig = plt.figure(figsize=(10, 5), tight_layout=True)
-    for images, label_idxs in ds.take(1):
-        for i in range(10):
-            plt.subplot(2, 5, i + 1)
-            image = (images[i].numpy() * 255).astype("uint8")
-            if grayscale:
-                plt.imshow(image,cmap="gray")
-            else:
-                plt.imshow(image)
-            
-            plt.title(labels[int(label_idxs[i].numpy()[0])])
-            plt.axis("off")
-
-    return fig
-
 
 def main() -> None:
     if len(sys.argv) != 3:
@@ -85,6 +65,12 @@ def main() -> None:
 
     # Normalize the data
     x_train, x_test = x_train / 255.0, x_test / 255.0
+    # shuffle data 
+
+    indices = np.arange(len(x_train))
+    np.random.shuffle(indices)
+    x_train = x_train[indices]
+    y_train = y_train[indices]
 
     # Split train data into training and validation sets based on split parameter
     val_size = int(len(x_train) * split)
@@ -92,18 +78,15 @@ def main() -> None:
     x_train, y_train = x_train[val_size:], y_train[val_size:]
 
     # Create TensorFlow datasets
-    ds_train = tf.data.Dataset.from_tensor_slices((x_train, y_train)).batch(32)
-    ds_val = tf.data.Dataset.from_tensor_slices((x_val, y_val)).batch(32)
-    ds_test = tf.data.Dataset.from_tensor_slices((x_test, y_test)).batch(32)
+    ds_train = tf.data.Dataset.from_tensor_slices((x_train, y_train)).batch(batch)
+    ds_val = tf.data.Dataset.from_tensor_slices((x_val, y_val)).batch(batch)
+    ds_test = tf.data.Dataset.from_tensor_slices((x_test, y_test)).batch(batch)
 
     if not prepared_dataset_folder.exists():
         prepared_dataset_folder.mkdir(parents=True)
 
-    # Save the preview plot
-    preview_plot = get_preview_plot(ds_train, class_names,grayscale)
-    preview_plot.savefig(prepared_dataset_folder / "preview.png")
 
-        # Save the dataset labels and the datasets
+    # Save the dataset labels and the datasets
     with open(prepared_dataset_folder / "labels.json", "w") as f:
         json.dump(class_names, f)
     ds_train.save(str(prepared_dataset_folder / "train"))

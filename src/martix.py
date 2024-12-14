@@ -4,18 +4,17 @@ from pathlib import Path
 
 
 def extract_matrix(yaml_file: Path) -> None:
-    # Charger le fichier YAML
+    """
+    Check the number of model to use in the params.yaml
+    and print for the github action matrix
+    """
     with open(yaml_file, "r") as file:
         data = yaml.safe_load(file)
-
-    # Construire la matrice en extrayant les modèles et leurs attributs
     models = data.get("model", {})
     matrix = [
-        {"model": model}  # Ajoute les détails de chaque modèle dans la matrice
+        {"model": model}  
         for model, details in models.items()
     ]
-
-    # Afficher la matrice au format JSON
     print(json.dumps({"include": matrix}, indent=2))
 
 

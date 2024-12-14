@@ -6,16 +6,14 @@ prepare:
 
 train:
   seed: 77
-  lr: 0.001
-  epochs: 2
-  batch: 256
+  lr: 0.002
+  epochs: 20
+  batch: 512
   
-
 model:
   model1:
     params:
-      epochs: 3
-      batch: 128
+      epochs: 15
     model:
       layer:
         - branche:
@@ -23,31 +21,29 @@ model:
               filters: 32
               kernel_size: [3, 3]
               activation: "relu"
+              padding: "valid"
           - max_pool:
-              pool_size: [3, 3]
-          - flatten: 0 
+              pool_size: [2, 2] 
+          - conv_layers:
+              filters: 64
+              kernel_size: [3, 3]
+              activation: "relu"
+              padding: "valid"
+          - conv_layers:
+              filters: 128
+              kernel_size: [3, 3]
+              activation: "relu"
+              padding: "valid"
+          - max_pool:
+              pool_size: [2, 2] 
+          - flatten: 0
           - dense_layers:
               units: 128
               activation: "relu"
           - output_classes: 100
   model2:
     params:
-      lr: 0.003
-    model:
-      layer:
-        - branche:
-          - conv_layers:
-              filters: 64
-              kernel_size: [5, 5]
-              activation: "relu"
-          - max_pool:
-              pool_size: [5, 5]
-          - flatten: 0  
-          - dense_layers:
-              units: 256
-              activation: "relu"
-          - output_classes: 100
-  model3:
+      epochs: 40
     model:
       layer:
         - branche:
@@ -55,20 +51,145 @@ model:
               filters: 32
               kernel_size: [3, 3]
               activation: "relu"
+              padding: "same"
+        - branche:
+          - conv_layers:
+                filters: 32
+                kernel_size: [5, 5]
+                activation: "relu"
+                padding: "same"
+        - branche:
+          - conv_layers:
+                filters: 32
+                kernel_size: [7, 7]
+                activation: "relu"
+                padding: "same"
+      layer:
+        - branche:
+          - bach_norm: 0
           - max_pool:
-              pool_size: [3, 3] 
+              pool_size: [2, 2] 
+          - dropout : 0.25
+      layer:
+        - branche:
           - conv_layers:
               filters: 64
               kernel_size: [3, 3]
               activation: "relu"
+              padding: "same"
+        - branche:
+          - conv_layers:
+                filters: 64
+                kernel_size: [5, 5]
+                activation: "relu"
+                padding: "same"
+        - branche:
+          - conv_layers:
+                filters: 64
+                kernel_size: [7, 7]
+                activation: "relu"
+                padding: "same"
+      layer:
+        - branche:
+          - bach_norm: 0
           - max_pool:
-              pool_size: [3, 3] 
+              pool_size: [2, 2] 
+          - dropout : 0.25
+      layer:
+        - branche:
+          - conv_layers:
+              filters: 128
+              kernel_size: [3, 3]
+              activation: "relu"
+              padding: "same"
+        - branche:
+          - conv_layers:
+                filters: 128
+                kernel_size: [5, 5]
+                activation: "relu"
+                padding: "same"
+        - branche:
+          - conv_layers:
+                filters: 128
+                kernel_size: [7, 7]
+                activation: "relu"
+                padding: "same"
+      layer:
+        - branche:
+          - bach_norm: 0
+          - max_pool:
+              pool_size: [2, 2] 
+          - dropout : 0.4
           - flatten: 0
           - dense_layers:
-              units: 128
+              units: 512
               activation: "relu"
+          - bach_norm: 0
+          - dropout : 0.5 
+          - output_classes: 100
+  model3:
+    params:
+      epochs: 40
+    model:
+      layer:
+        - branche:
+          - conv_layers:
+              filters: 32
+              kernel_size: [3, 3]
+              activation: "relu"
+              padding: "same"
+          - bach_norm: 0
+          - conv_layers:
+              filters: 32
+              kernel_size: [3, 3]
+              activation: "relu"
+              padding: "same"
+          - bach_norm: 0
+          - max_pool:
+              pool_size: [2, 2]
+          - dropout : 0.25 
+          - conv_layers:
+              filters: 64
+              kernel_size: [3, 3]
+              activation: "relu"
+              padding: "same"
+          - bach_norm: 0
+          - conv_layers:
+              filters: 64
+              kernel_size: [3, 3]
+              activation: "relu"
+              padding: "same"
+          - bach_norm: 0
+          - max_pool:
+              pool_size: [2, 2]
+          - dropout : 0.25
+          - conv_layers:
+              filters: 128
+              kernel_size: [3, 3]
+              activation: "relu"
+              padding: "same"
+          - bach_norm: 0
+          - conv_layers:
+              filters: 128
+              kernel_size: [3, 3]
+              activation: "relu"
+              padding: "same"
+          - bach_norm: 0
+          - max_pool:
+              pool_size: [2, 2]
+          - dropout : 0.4  
+          - flatten: 0
+          - dense_layers:
+              units: 512
+              activation: "relu"
+          - bach_norm: 0
+          - dropout : 0.5 
           - output_classes: 100
   model4:
+    params:
+      epochs: 10
     model:
-      MobileNet: 100
+      EfficientNetB0: 100
+
+    
 

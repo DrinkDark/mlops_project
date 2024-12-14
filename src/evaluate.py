@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 import time
+import repository as rs
+import os
 
 def get_training_plot(model_history: dict) -> plt.Figure:
     """Plot the training and validation loss"""
@@ -28,6 +30,7 @@ def get_training_plot(model_history: dict) -> plt.Figure:
 def get_pred_preview_plot(
     model: tf.keras.Model, ds_test: tf.data.Dataset, labels: List[str]
 ) -> plt.Figure:
+
     """Plot a preview of the predictions"""
     fig = plt.figure(figsize=(10, 5), tight_layout=True)
     for images, label_idxs in ds_test.take(1):
@@ -61,27 +64,16 @@ def get_pred_preview_plot(
     return fig
 
 
-def get_confusion_matrix_plot(
-    model: tf.keras.Model, ds_test: tf.data.Dataset, labels: List[str]
-) -> plt.Figure:
-    """Plot the confusion matrix"""
-    fig = plt.figure(figsize=(100, 100), tight_layout=True)
-    preds = model.predict(ds_test)
-
-    conf_matrix = tf.math.confusion_matrix(
-        labels=tf.concat([y for _, y in ds_test], axis=0),
-        predictions=tf.argmax(preds, axis=1),
-        num_classes=len(labels),
-    )
-
-    # Plot the confusion matrix
-    conf_matrix = conf_matrix / tf.reduce_sum(conf_matrix, axis=1)
-    plt.imshow(conf_matrix, cmap="Blues")
-
+def get_confusion_matrix_plot(conf_matrix) -> plt.Figure:
+    """Plot a preview of the matrix"""
+    labels = conf_matrix["labels"]
+    cm = np.array(conf_matrix["matrix"])
+    fig = plt.figure(figsize=(50, 50), tight_layout=True)
+    plt.imshow(cm, cmap="Blues")
     # Plot cell values
     for i in range(len(labels)):
         for j in range(len(labels)):
-            value = conf_matrix[i, j].numpy()
+            value = cm[i, j]
             if value == 0:
                 color = "lightgray"
             elif value > 0.5:
@@ -97,7 +89,6 @@ def get_confusion_matrix_plot(
                 color=color,
                 fontsize=8,
             )
-
     plt.colorbar()
     plt.xticks(range(len(labels)), labels, rotation=90)
     plt.yticks(range(len(labels)), labels)
@@ -107,148 +98,211 @@ def get_confusion_matrix_plot(
 
     return fig
 
+def   get_confusion_matrix_json(model: tf.keras.Model, ds_test: tf.data.Dataset, labels: List[str]) :
+    """creat the confusion matrix json"""
+   
+    preds = model.predict(ds_test)
+
+    conf_matrix = tf.math.confusion_matrix(
+        labels=tf.concat([y for _, y in ds_test], axis=0),
+        predictions=tf.argmax(preds, axis=1),
+        num_classes=len(labels),
+    )
+
+    # Plot the confusion matrix
+    conf_matrix = conf_matrix / tf.reduce_sum(conf_matrix, axis=1)
+    cm = conf_matrix.numpy().tolist()
+    cm_dict = {"labels": labels, "matrix": cm}
+    return cm_dict
+
 
 def main() -> None:
     if len(sys.argv) != 3:
         print("Arguments error. Usage:\n")
         print("\tpython3 evaluate.py <model-folder> <prepared-dataset-folder>\n")
         exit(1)
-
-    model_folder = Path("model") / Path(sys.argv[1])
+    name_model = sys.argv[1]
+    model_folder = Path("model") / Path(name_model)
     prepared_dataset_folder = Path(sys.argv[2])
-    evaluation_folder = Path("evaluation") / Path(sys.argv[1])
-    plots_folder = Path("plots-"+sys.argv[1])
+    evaluation_folder = Path("evaluation") / Path(name_model)
+    plots_folder = Path("plots")
    
+
+
 
     # Create folders
     (evaluation_folder / plots_folder).mkdir(parents=True, exist_ok=True)
 
+    
     # Load files
     ds_test = tf.data.Dataset.load(str(prepared_dataset_folder / "test"))
     labels = None
     with open(prepared_dataset_folder / "labels.json") as f:
         labels = json.load(f)
 
-    # Load model
-    model_path = model_folder / "model.keras"
-    model = tf.keras.models.load_model(model_path)
-    model_history = np.load(model_folder / "history.npy", allow_pickle=True).item()
+    # load model to bentoml
+    repr = rs.RepositoryModel()
+    if os.path.exists(os.path.join(model_folder, "name_model.json")):
+        model = repr.import_load_model(name="bento-model")
+        model_history = np.load(model_folder / "history.npy", allow_pickle=True).item()
 
-    # Log metrics
+        # Log metrics
 
-    val_loss, val_acc = model.evaluate(ds_test)
+        val_loss, val_acc = model.evaluate(ds_test)
 
-    # Measure prediction time
-    test_data = ds_test.take(1)
+        # Measure prediction time
+        test_data = ds_test.take(1)
 
-    predictions = model.predict(test_data)
-
-    # Measure prediction time over 100 iterations
-    times = []
-    for predictions in range(100):
-        start_time = time.time()
         predictions = model.predict(test_data)
-        end_time = time.time()
-        times.append(end_time - start_time)
 
-    # Get batch size
-    batch_size = 0
-    for x_batch, y_batch in test_data:
-        batch_size = x_batch.shape[0]
+        # Measure prediction time over 100 iterations
+        times = []
+        for predictions in range(100):
+            start_time = time.time()
+            predictions = model.predict(test_data)
+            end_time = time.time()
+            times.append(end_time - start_time)
 
-    # Calculate average prediction time in ms
-    mean_prediction_time = np.mean(times) / batch_size * 1000
+        # Get batch size
+        batch_size = 0
+        for x_batch, y_batch in test_data:
+            batch_size = x_batch.shape[0]
 
-    conf_matrix = tf.math.confusion_matrix(
-        labels=tf.concat([y for _, y in ds_test], axis=0),
-        predictions=tf.argmax(model.predict(ds_test), axis=1),
-        num_classes=len(labels)
-    ).numpy()  # Convert to numpy for easier slicing
+        # Calculate average prediction time in ms
+        mean_prediction_time = np.mean(times) / batch_size * 1000
 
-    # Initialize metric dictionaries
+        conf_matrix = tf.math.confusion_matrix(
+            labels=tf.concat([y for _, y in ds_test], axis=0),
+            predictions=tf.argmax(model.predict(ds_test), axis=1),
+            num_classes=len(labels)
+        ).numpy()  # Convert to numpy for easier slicing
 
-    metrics = {'TP': [], 'FP': [], 'FN': [], 'TN': []}
-    total_samples = np.sum(conf_matrix)
-    TP = 0
-    FN = 0
-    FP = 0
-    TN = 0
-    total_recall = 0
-    total_fpr = 0
-    num_classes = conf_matrix.shape[0]
+        # Initialize metric dictionaries
 
-    for i in range(num_classes):  # Iterate over each class
-        TP = conf_matrix[i, i]
-        FN = np.sum(conf_matrix[i, :]) - TP
-        FP = np.sum(conf_matrix[:, i]) - TP
-        TN = total_samples - (TP + FP + FN)
-        TPR = TP / (TP + FN) if (TP + FN) > 0 else 0
-        FPR = FP / (FP + TN) if (FP + TN) > 0 else 0
+        metrics = {'TP': [], 'FP': [], 'FN': [], 'TN': []}
+        total_samples = np.sum(conf_matrix)
+        TP = 0
+        FN = 0
+        FP = 0
+        TN = 0
+        total_recall = 0
+        total_fpr = 0
+        num_classes = conf_matrix.shape[0]
 
-        # Accumulate TPR and FPR
+        for i in range(num_classes):  # Iterate over each class
+            TP = conf_matrix[i, i]
+            FN = np.sum(conf_matrix[i, :]) - TP
+            FP = np.sum(conf_matrix[:, i]) - TP
+            TN = total_samples - (TP + FP + FN)
+            TPR = TP / (TP + FN) if (TP + FN) > 0 else 0
+            FPR = FP / (FP + TN) if (FP + TN) > 0 else 0
 
-        total_recall += TPR
-        total_fpr += FPR
+            # Accumulate TPR and FPR
 
-    # Calculate averages
+            total_recall += TPR
+            total_fpr += FPR
 
-    recall = total_recall / num_classes
+        # Calculate averages
 
-    FPR = total_fpr / num_classes
+        recall = total_recall / num_classes
 
-    # Calculate F1 Score
+        FPR = total_fpr / num_classes
 
-    f1_score = TP / (TP + 0.5 * (FP + FN))
+        # Calculate F1 Score
 
-    # Overfitting Tendency
+        f1_score = TP / (TP + 0.5 * (FP + FN))
 
-    training_loss = model_history['loss'][-1]
+        # Overfitting Tendency
 
-    validation_loss = model_history['val_loss'][-1]
+        training_loss = model_history['loss'][-1]
 
-    overfitting_tendency = training_loss - validation_loss
+        validation_loss = model_history['val_loss'][-1]
 
-    # Complexity (Number of Parameters)
+        overfitting_tendency = training_loss - validation_loss
 
-    complexity = model.count_params()
+        # Complexity (Number of Parameters)
 
-    print(f"Validation loss: {val_loss:.2f}")
+        complexity = model.count_params()
 
-    print(f"Validation accuracy: {val_acc * 100:.2f}%")
+        print(f"Validation loss: {val_loss:.2f}")
 
-    print(f"Average prediction time: {mean_prediction_time:.6f} ms")
+        print(f"Validation accuracy: {val_acc * 100:.2f}%")
 
-    print(f"Recall: {recall:.2f}")
+        print(f"Average prediction time: {mean_prediction_time:.6f} ms")
 
-    print(f"False Positive Rate: {FPR:.2f}")
+        print(f"Recall: {recall:.2f}")
 
-    print(f"F1 Score: {f1_score:.2f}")
+        print(f"False Positive Rate: {FPR:.2f}")
 
-    print(f"Overfitting tendency: {overfitting_tendency:.2f}")
+        print(f"F1 Score: {f1_score:.2f}")
 
-    print(f"Complexity: {complexity:.2f} parmeters")
+        print(f"Overfitting tendency: {overfitting_tendency:.2f}")
 
-    with open(evaluation_folder / "metrics.json", "w") as f:
+        print(f"Complexity: {complexity:.2f} parmeters")
 
-        json.dump({"val_loss": val_loss, "val_acc": val_acc, "recall": recall, "fpr": FPR, "f1_score": f1_score,
-                   "overfitting_tendency": overfitting_tendency, "complexity": complexity, "mean_predictions_time": mean_prediction_time}, f)
+        with open(evaluation_folder / "metrics.json", "w") as f:
 
-    # Save training history plot
-    fig = get_training_plot(model_history)
-    fig.savefig(evaluation_folder / plots_folder / "training_history.png")
+            json.dump({"val_loss": val_loss, "val_acc": val_acc, "recall": recall, "fpr": FPR, "f1_score": f1_score,
+                    "overfitting_tendency": overfitting_tendency, "complexity": complexity, "mean_predictions_time": mean_prediction_time}, f)
 
-    # Save predictions preview plot
-    fig = get_pred_preview_plot(model, ds_test, labels)
-    fig.savefig(evaluation_folder / plots_folder / "pred_preview.png")
 
-    # Save confusion matrix plot
-    fig = get_confusion_matrix_plot(model, ds_test, labels)
-    fig.savefig(evaluation_folder / plots_folder / "confusion_matrix.png")
 
+
+
+        # Save training history plot
+        fig = get_training_plot(model_history)
+        fig.savefig(evaluation_folder / plots_folder / "training_history.png")
+
+        # Save predictions preview plot
+        fig = get_pred_preview_plot(model, ds_test, labels)
+        fig.savefig(evaluation_folder / plots_folder / "pred_preview.png")
+
+        # Save confusion matrix plot
+        cm =  get_confusion_matrix_json(model, ds_test, labels)
+        fig = get_confusion_matrix_plot(cm)
+
+        fig.savefig(evaluation_folder / plots_folder / "confusion_matrix.png")
+
+        repr.update_model_metadata(
+            tag="bento-model",
+            metadata={
+                "val_loss": val_loss,
+                "val_acc": val_acc,
+                "recall": recall,
+                "fpr": FPR,
+                "f1_score": f1_score,
+                "overfitting_tendency": overfitting_tendency,
+                "complexity": complexity,
+                "mean_predictions_time": mean_prediction_time,
+                "model_history": model_history,
+                "confusion_matrix":cm
+            }
+        )
+
+  
+    else:
+        model = repr.load_model("bento-model")
+        model_bento = repr.get_model("bento-model")
+        metadata=model_bento.info.metadata
+        with open(evaluation_folder / "metrics.json", "w") as f:
+            json.dump({"val_loss": metadata["val_loss"], "val_acc": metadata["val_acc"], "recall": metadata["recall"], "fpr": metadata["fpr"], "f1_score": metadata["f1_score"],
+                 "overfitting_tendency": metadata["overfitting_tendency"], "complexity": metadata["complexity"], "mean_predictions_time": metadata["mean_predictions_time"]}, f)
+            
+        # Save training history plot
+        fig = get_training_plot(metadata["model_history"])
+        fig.savefig(evaluation_folder / plots_folder / "training_history.png")
+
+        # Save predictions preview plot
+        fig = get_pred_preview_plot(model, ds_test, labels)
+        fig.savefig(evaluation_folder / plots_folder / "pred_preview.png")
+
+        # Save confusion matrix plot
+        fig = get_confusion_matrix_plot(metadata["confusion_matrix"])
+        fig.savefig(evaluation_folder / plots_folder / "confusion_matrix.png")
+    
     print(
         f"\nEvaluation metrics and plot files saved at {evaluation_folder.absolute()}"
     )
-
 
 if __name__ == "__main__":
     main()

@@ -80,68 +80,61 @@ def get_model_from_config(image_shape: Tuple[int, int, int], config: dict,seed=1
         x = tf.keras.layers.BatchNormalization()(x)
         x = tf.keras.layers.Dropout(0.5)(x)
         outputs = tf.keras.layers.Dense(val_config, activation='softmax')(x)
-    else:
+    elif key_config == "custome":
         x = inputs
         model = tf.keras.models.Sequential()
-        for layer in config["layer"]:
-            branches=[]
-            branch = x
-            for branche in layer["branche"]:
-                for branche_type in branche.items():
-                    print(branche_type)
-                    if branche_type[0] == "conv_layers":
-                        branch = tf.keras.layers.Conv2D(
-                            filters=branche_type[1]["filters"],
-                            kernel_size=tuple(branche_type[1]["kernel_size"]),
-                            activation=branche_type[1]["activation"],
-                            padding=branche_type[1]["padding"],
-                        )(branch)
-                    elif branche_type[0] == "max_pool":
-                        branch = tf.keras.layers.MaxPooling2D(
-                                pool_size=tuple(branche_type[1]["pool_size"])
-                            )(branch)
-                    elif branche_type[0] == "flatten":
-                        branch = tf.keras.layers.Flatten()(branch)
-                    elif branche_type[0] == "dropout":
-                        branch = tf.keras.layers.Dropout(branche_type[1], noise_shape=None, seed=seed,)(branch)
-                    elif branche_type[0] == "batch_norm":
-                        branch = tf.keras.layers.BatchNormalization()(branch)
-                    elif branche_type[0] == "dense_layers":
-                        branch = tf.keras.layers.Dense(
-                            units=branche_type[1]["units"],
-                            activation=branche_type[1]["activation"],
-                        )(branch)
-                    elif branche_type[0] == "output_classes":
-                        branch = tf.keras.layers.Dense(
-                            units=branche_type[1],
-                            activation=None,  
-                        )(branch)
-            branches.append(branch)
-            if len(branches)> 1:
-                x = tf.keras.layers.Concatenate()(branches)
-            else:
-                x = branches[0]
+        for layers in val_config:
+            for layer in layers.items():
+                branches=[]
+                for layer_branches in layer[1]:
+                    branch = x
+                    for layer_branche in layer_branches.items():
+                        for branche_typ in layer_branche[1]:
+                            for branche_type in branche_typ.items():
+                                print(branche_type)
+                                if branche_type[0] == "conv_layers":
+                                    branch = tf.keras.layers.Conv2D(
+                                        filters=branche_type[1]["filters"],
+                                        kernel_size=tuple(branche_type[1]["kernel_size"]),
+                                        activation=branche_type[1]["activation"],
+                                        padding=branche_type[1]["padding"],
+                                    )(branch)
+                                elif branche_type[0] == "max_pool":
+                                    branch = tf.keras.layers.MaxPooling2D(
+                                            pool_size=tuple(branche_type[1]["pool_size"])
+                                        )(branch)
+                                elif branche_type[0] == "flatten":
+                                    branch = tf.keras.layers.Flatten()(branch)
+                                elif branche_type[0] == "dropout":
+                                    branch = tf.keras.layers.Dropout(branche_type[1], noise_shape=None, seed=seed,)(branch)
+                                elif branche_type[0] == "batch_norm":
+                                    branch = tf.keras.layers.BatchNormalization()(branch)
+                                elif branche_type[0] == "dense_layers":
+                                    branch = tf.keras.layers.Dense(
+                                        units=branche_type[1]["units"],
+                                        activation=branche_type[1]["activation"],
+                                    )(branch)
+                                elif branche_type[0] == "output_classes":
+                                    branch = tf.keras.layers.Dense(
+                                        units=branche_type[1],
+                                        activation=None,  
+                                    )(branch)
+                                else:
+                                    print("Arguments error. Usage:\n")
+                                    print("\tfalse model declaration\n")
+                                    exit(1)
+                    branches.append(branch)
+                if len(branches)> 1:
+                    x = tf.keras.layers.Concatenate()(branches)
+                else:
+                    x = branches[0]
+    else:
+        print("Arguments error. Usage:\n")
+        print("\tfalse model declaration\n")
+        exit(1)
     model = tf.keras.Model(inputs=inputs, outputs=x)
     return model
 
-
-
-def check_model_exist(model,params):
-    """
-    check if a model is alrady train
-    if true reture model and metadata
-    if false return none
-    """
-    root_dir="model"
-    list_model_path=root_dir+"/list_model.json"
-    if os.path.exists(list_model_path):
-        if os.path.getsize(list_model_path) != 0:
-            with open(list_model_path, "r", encoding="utf-8") as file:
-                model_list = json.load(file)
-            repo = rs.RepositoryModel()
-            return repo.comp_list_model(model,params,model_list)
-        return None,None
-        
 
 
 def main() -> None:
@@ -208,46 +201,37 @@ def main() -> None:
     )
     model.summary()
 
-
-    existing_model,metadata=check_model_exist(model=model,params=param)
-
     #check if existe
-    if existing_model ==None:
-        # Train the model
-        model.fit(
-            ds_train,
-            epochs=epochs,
-            validation_data=ds_val,
-        )
-        #save model bento
-        repr = rs.RepositoryModel()
-        bento_model=repr.save_model(
-            name="bento-model"
-            ,model=model,
-            metadata={
-                "seed" : seed,
-                "lr": lr,
-                "epochs": epochs,
-            }
-        )
-        repr.export_model("bento-model")
-        # Save the model
-        model_folder.mkdir(parents=True, exist_ok=True)
-        model_path = model_folder / "model.keras"
-        model.save(model_path)
-        # Save the model history
-        np.save(model_folder / "history.npy", model.history.history)
+    
+    # Train the model
+    model.fit(
+        ds_train,
+        epochs=epochs,
+        validation_data=ds_val,
+    )
+    #save model bento
+    repr = rs.RepositoryModel()
+    bento_model=repr.save_model(
+        name="bento-model"
+        ,model=model,
+        metadata={
+            "seed" : seed,
+            "lr": lr,
+            "epochs": epochs,
+        }
+    )
+    repr.export_model("bento-model")
+    # Save the model
+    model_folder.mkdir(parents=True, exist_ok=True)
+    model_path = model_folder / "model.keras"
+    model.save(model_path)
+    # Save the model history
+    np.save(model_folder / "history.npy", model.history.history)
 
-        with open(model_folder / "name_model.json", "w") as f:
-            json.dump({"name_model": str(bento_model.tag)}, f)
-        print(f"\nModel saved at {model_folder.absolute()}")
-    else:
-        #juste save model and history
-        model_folder.mkdir(parents=True, exist_ok=True)
-        model_path = model_folder / "model.keras"
-        existing_model.save(model_path)
-        model_folder.mkdir(parents=True, exist_ok=True)
-        np.save(model_folder / "history.npy", metadata)
+    with open(model_folder / "name_model.json", "w") as f:
+        json.dump({"name_model": str(bento_model.tag)}, f)
+    print(f"\nModel saved at {model_folder.absolute()}")
+
 
 
 if __name__ == "__main__":

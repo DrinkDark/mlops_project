@@ -113,6 +113,40 @@ class RepositoryModel():
                             return model,bento_model.info.metadata
         return None,None
 
+    def get_top_models_by_metric(self, metric_key, optimum=1, top_n=10):
+        """
+        Retrieve the top N models based on a specific metric in their metadata.
+
+        Args:
+        - metric_key (str): The key of the metric to sort by.
+        - top_n (int): Number of top models to retrieve.
+
+        Returns:
+        - list: Top N models sorted by the metric.
+        """
+        # List all models in the BentoML store
+        models = bentoml.models.list()
+
+        # Extract models with the desired metric
+        models_with_metrics = []
+        for model in models:
+            # Access metadata
+            metadata = model.info.metadata
+
+            if metric_key.strip() in metadata:
+                models_with_metrics.append({
+                    "model": model,
+                    "metric_value": metadata[metric_key.strip()],
+                })
+            else:
+                print(f"Model {model.tag} does not have the metric '{metric_key}'.")
+    
+        # Sort models by the metric value (descending order for higher-is-better metrics)
+        sorted_models = sorted(models_with_metrics, key=lambda x: x["metric_value"], reverse=optimum < 0)
+
+        # Return the top N models
+        return list(map(lambda m : m.get("model"), sorted_models[:top_n]))
+
 
 if __name__ == "__main__":
     repository = RepositoryModel()

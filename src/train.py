@@ -159,7 +159,7 @@ def main() -> None:
         exit(1)
 
     # Load parameters
-
+    
     params = yaml.safe_load(open("params.yaml"))
     prepare_params = params["prepare"]
     train_params = params["train"]
@@ -168,7 +168,7 @@ def main() -> None:
     prepared_dataset_folder = Path(sys.argv[1])
     model_folder = Path("model") / Path(sys.argv[2])
     print(f"Training model: {sys.argv[2]}")
-
+    model_folder.mkdir(parents=True, exist_ok=True)
     model_v = (sys.argv[2])
     model_config=model_configs[model_v]["model"]
 
@@ -235,7 +235,6 @@ def main() -> None:
             }
         )
         # Save the model
-        model_folder.mkdir(parents=True, exist_ok=True)
         repr.export_model("bento-model")
         model_path = model_folder / "model.keras"
         model.save(model_path)
@@ -247,7 +246,6 @@ def main() -> None:
         print(f"\nModel saved at {model_folder.absolute()}")
     else:
         #juste save model and history
-        model_folder.mkdir(parents=True, exist_ok=True)
         repr.export_model("bento-model",tag=ex_bento_model.tag)
         model_path = model_folder / "model.keras"
         existing_model.save(model_path)

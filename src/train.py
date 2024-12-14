@@ -213,7 +213,7 @@ def main() -> None:
     )
     model.summary()
     repr = rs.RepositoryModel(model_folder)
-    existing_model,ex_bento_model=check_model_exist(model=model,params=param,repo=repo)
+    existing_model,ex_bento_model=check_model_exist(model=model,params=param,repo=repr)
 
     #check if existe
     if existing_model ==None:

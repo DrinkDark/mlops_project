@@ -19,10 +19,10 @@
 # -------------------------------------------------------------------------------------------
 
 evaluation_metrics:
-  val_loss: 1.0
-  val_acc: 5.0
-  recall: null
-  fpr: null
+  val_loss: null
+  val_acc: null
+  recall: 1.0
+  fpr: 5.0
   f1_score: 1.0
   overfitting_tendency: null
   complexity: null

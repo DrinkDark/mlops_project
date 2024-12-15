@@ -185,8 +185,13 @@ if __name__ == "__main__":
 
     results_dir = sys.argv[1]
     results = load_results(results_dir,repo=repo)
-    results["overfitting_tendency"] += 1
     weights, directions = load_metrics_config()
+
+    # Add 1 to overfitting tendency so the range pass from [-1,1] to [0,2]
+    for model, metrics in results.items():
+        if 'overfitting_tendency' in metrics and metrics['overfitting_tendency'] is not None:
+            metrics['overfitting_tendency'] += 1
+            
     normalize_results = normalize_results(results, directions)
 
     best_model, best_score = compare_results(normalize_results, weights)

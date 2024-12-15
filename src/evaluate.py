@@ -214,15 +214,6 @@ def main() -> None:
 
         f1_score = TP / (TP + 0.5 * (FP + FN))
 
-        # Overfitting Tendency
-
-        training_loss = model_history['loss'][-1]
-
-        validation_loss = model_history['val_loss'][-1]
-
-        # Add 1 to avoid negative values (range: -1 to 1 -> 0 to 2)
-        overfitting_tendency = (training_loss - validation_loss) + 1
-
         # Complexity (Number of Parameters)
 
         complexity = model.count_params()
@@ -239,14 +230,13 @@ def main() -> None:
 
         print(f"F1 Score: {f1_score:.2f}")
 
-        print(f"Overfitting tendency: {overfitting_tendency:.2f}")
 
         print(f"Complexity: {complexity:.2f} parmeters")
 
         with open(evaluation_folder / "metrics.json", "w") as f:
 
             json.dump({"val_loss": val_loss, "val_acc": val_acc, "recall": recall, "fpr": FPR, "f1_score": f1_score,
-                    "overfitting_tendency": overfitting_tendency, "complexity": complexity, "mean_predictions_time": mean_prediction_time}, f)
+                     "complexity": complexity, "mean_predictions_time": mean_prediction_time}, f)
 
         # Save training history plot
         fig = get_training_plot(model_history)
@@ -270,7 +260,6 @@ def main() -> None:
                 "recall": recall,
                 "fpr": FPR,
                 "f1_score": f1_score,
-                "overfitting_tendency": overfitting_tendency,
                 "complexity": complexity,
                 "mean_predictions_time": mean_prediction_time,
                 "model_history": model_history,
@@ -285,7 +274,7 @@ def main() -> None:
         metadata=model_bento.info.metadata
         with open(evaluation_folder / "metrics.json", "w") as f:
             json.dump({"val_loss": metadata["val_loss"], "val_acc": metadata["val_acc"], "recall": metadata["recall"], "fpr": metadata["fpr"], "f1_score": metadata["f1_score"],
-                 "overfitting_tendency": metadata["overfitting_tendency"], "complexity": metadata["complexity"], "mean_predictions_time": metadata["mean_predictions_time"]}, f)
+                 "complexity": metadata["complexity"], "mean_predictions_time": metadata["mean_predictions_time"]}, f)
 
         #add the name_model.json
         with open(model_folder / "name_model.json", "w") as f:

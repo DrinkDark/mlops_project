@@ -13,7 +13,6 @@
 #   - recall: Recall (higher is better).
 #   - fpr: False positive rate (lower is better).
 #   - f1_score: F1 score (higher is better).
-#   - overfitting_tendency: Overfitting tendency (lower is better).
 #   - complexity: Model complexity (lower is better).
 #   - prediction_time: Prediction time, average time for one data in ms (lower is better).
 # -------------------------------------------------------------------------------------------
@@ -24,7 +23,6 @@ evaluation_metrics:
   recall: 1.0
   fpr: 1.0
   f1_score: 1.0
-  overfitting_tendency: 1.0
   complexity: 1.0
   mean_predictions_time: 1.0
 
@@ -35,7 +33,6 @@ optimization_directions :
   recall: "maximize"
   fpr: "minimize"
   f1_score: "maximize"
-  overfitting_tendency: "minimize"
   complexity: "minimize"
   mean_predictions_time: "minimize"
 

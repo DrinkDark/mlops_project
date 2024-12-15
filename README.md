@@ -21,7 +21,7 @@ The project workflow :
 - __Custom and Pre-trained Models__: Support for manually defined architectures and pre-trained models like EfficientNetB0.
 - __GitHub Actions Integration__: Automates pipeline execution using a dynamic matrix strategy based on the number of defined models.
 ![Pipeline overview](image/actions.png)
-- __Evaluation Metrics__: Comprehensive metrics like accuracy, recall, F1-score, overfitting tendency, and more.
+- __Evaluation Metrics__: Comprehensive metrics like accuracy, recall, F1-score and more.
 - __Model Comparison__: Normalizes evaluation metrics to rank models and select the best one using the selected metrics and weights.
 - __BentoML Integration__: Seamless saving, loading trained models.
 - __Result report__ : create a report to summarize the training results

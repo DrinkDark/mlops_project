@@ -17,16 +17,14 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1 class="text-center">Model Metrics Comparison</h1>
-    <div id="performance-graph"></div>
-    <div id="loss-graph"></div>
-    <div id="prediction-time-graph"></div>
-    <div id="fpr-graph"></div>
+  <div class="container text-center">
+    <h1>Model Metrics Dashboard</h1>
+    <h2 class="text-center">Weighted metrics heatmap</h2>
+    <img id="output-image" src="weighted_metrics_heatmap.png" alt="Model Output" class="img-fluid">
   </div>
-
+  
   <div class="container">
-    <h1 class="text-center">Training History Dashboard</h1>
+    <h2 class="text-center">Training History Dashboard</h2>
     <select id="model-dropdown" class="form-select mb-4">
       <!-- Options will be populated dynamically -->
     </select>
@@ -39,15 +37,18 @@
       </div>
     </div>
   </div>
-
+  
   <div class="container">
-    <h1 class="text-center">Confusion Matrix</h1>
-    <div id="confusion-matrix"></div>
+    <h2 class="text-center">Model Metrics Comparison</h2>
+    <div id="performance-graph"></div>
+    <div id="loss-graph"></div>
+    <div id="prediction-time-graph"></div>
+    <div id="fpr-graph"></div>
   </div>
 
-  <div class="container text-center">
-    <h1 class="text-center">Weighted metrics heatmap</h1>
-    <img id="output-image" src="weighted_metrics_heatmap.png" alt="Model Output" class="img-fluid">
+  <div class="container">
+    <h2 class="text-center">Confusion Matrix</h2>
+    <div id="confusion-matrix"></div>
   </div>
 
   <script>

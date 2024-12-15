@@ -14,6 +14,7 @@ The goal of this project is to accelerate the selection and training phase of a 
 4.	__The absence of a memory of training already carried out__: keep in memory the already trained models with their hyperparameters and the result.
 
 The project workflow :
+
 ![Project workflow](image/diagram_mlops.jpg)
 
 ## Features

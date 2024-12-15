@@ -20,13 +20,13 @@
 
 evaluation_metrics:
   val_loss: null
-  val_acc: null
-  recall: 1.0
-  fpr: 5.0
-  f1_score: 1.0
-  overfitting_tendency: null
-  complexity: null
-  mean_predictions_time: null
+  val_acc: 1.0
+  recall: null
+  fpr: null
+  f1_score: null
+  overfitting_tendency: 1.0
+  complexity: 1.0
+  mean_predictions_time: 5.0
 
 # Do not modify the following section
 optimization_directions :

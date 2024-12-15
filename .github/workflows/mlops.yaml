@@ -30,9 +30,6 @@ jobs:
       - name: Debug generated matrix
         run: cat matrix.json
 
-        
-
-
   data-train-evaluate:
     runs-on: ubuntu-latest
     needs: generate-matrix
@@ -56,7 +53,7 @@ jobs:
           bentoml cloud login --api-token ${{ secrets.BENTO_API_KEY }}
           bentoml cloud update-current-context default
 
-      - name: check ficher in
+      - name: Check file in
         run: |
           echo "Data train in:"
           ls -R model
@@ -74,7 +71,7 @@ jobs:
         run: |
           python3.11 src/evaluate.py ${{ matrix.model }} data/prepared
 
-      - name: check ficher out
+      - name: Check file out
         run: |
           echo "Data train out"
           ls -R model
@@ -138,7 +135,7 @@ jobs:
           ls -R model
           ls -R evaluation
   
-      - name: compar and select model
+      - name: Compare and select model
         run: |
           python3.11 src/compare.py evaluation
 

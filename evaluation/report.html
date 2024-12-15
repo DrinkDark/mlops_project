@@ -21,7 +21,6 @@
     <h1 class="text-center">Model Metrics Comparison</h1>
     <div id="performance-graph"></div>
     <div id="loss-graph"></div>
-    <div id="overfitting-graph"></div>
     <div id="prediction-time-graph"></div>
     <div id="fpr-graph"></div>
   </div>
@@ -83,15 +82,6 @@
       title: "Loss - Top 10 Models",
       xaxis: { title: "Models" },
       yaxis: { title: "Loss" }
-    });
-
-    // Plot Overfitting Tendency
-    Plotly.newPlot("overfitting-graph", [
-      { x: models, y: metadatas.map(m => m.overfitting_tendency), type: 'bar', name: 'Overfitting Tendency' }
-    ], {
-      title: "Overfitting Tendency - Top 10 Models",
-      xaxis: { title: "Models" },
-      yaxis: { title: "Overfitting Tendency" }
     });
 
     // Plot Prediction Time

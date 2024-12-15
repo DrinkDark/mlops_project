@@ -15,9 +15,8 @@
 #   - f1_score: F1 score (higher is better).
 #   - overfitting_tendency: Overfitting tendency (lower is better).
 #   - complexity: Model complexity (lower is better).
-#   - prediction_time: Prediction time (lower is better).
+#   - prediction_time: Prediction time, average time for one data in ms (lower is better).
 # -------------------------------------------------------------------------------------------
-
 
 evaluation_metrics:
   val_loss: 1.0

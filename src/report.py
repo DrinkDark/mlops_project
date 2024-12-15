@@ -141,6 +141,9 @@ metadata = {
     "val_loss": 3.285923719406128
 }
 def creat_report(models=None,nb_model=10):
+    """
+    Create a report with the top models
+    """
     repository = RepositoryModel()
     all_models = repository.get_top_models_by_metric("seed", 1, nb_model)
 

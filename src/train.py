@@ -11,7 +11,9 @@ from utils.seed import set_seed
 
 
 def get_model_from_config(image_shape: Tuple[int, int, int], config: dict,seed=1234) -> tf.keras.Model:
-    """Create a CNN model based on YAML configuration."""
+    """
+    Create a CNN model based on YAML configuration.
+    """
     key_config,val_config = next(iter(config.items()))
     inputs = tf.keras.Input(shape=image_shape)
     if key_config == "ResNet50":
@@ -138,9 +140,9 @@ def get_model_from_config(image_shape: Tuple[int, int, int], config: dict,seed=1
 
 def check_model_exist(model,params,repo):
     """
-    check if a model is alrady train
-    if true reture model and metadata
-    if false return none
+    Check if a model is already train
+        - if true returne model and metadata
+        - if false return none
     """
     root_dir="model"
     list_model_path=root_dir+"/list_model.json"
@@ -171,7 +173,6 @@ def main() -> None:
     model_folder.mkdir(parents=True, exist_ok=True)
     model_v = (sys.argv[2])
     model_config=model_configs[model_v]["model"]
-
 
     image_size = prepare_params["image_size"]
     grayscale = prepare_params["grayscale"]
@@ -252,7 +253,5 @@ def main() -> None:
         model_folder.mkdir(parents=True, exist_ok=True)
         np.save(model_folder / "history.npy", ex_bento_model.info.metadata)
         
-
-
 if __name__ == "__main__":
     main()

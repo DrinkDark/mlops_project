@@ -1,3 +1,14 @@
+# Configuration File
+# ===================================================
+# This configuration file defines the setup, parameters, and structure for training
+# multiple image classification models. The file is divided 
+# into sections for data preparation, training parameters, and model architectures.
+# A model can be a custom model or a pre-trained model.
+#
+# The global parameters can be overridden by the model-specific parameters if needed.
+# The model-specific parameters are defined under the model section.
+# ===================================================
+
 prepare:
   seed: 77
   split: 0.2

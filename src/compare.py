@@ -10,6 +10,9 @@ import os
 import report
 
 def load_results(results_dir,repo:rs.RepositoryModel):
+    """
+    Load results from Bento files in the given directory.
+    """
     results = {}
     for sub_dir in Path(results_dir).iterdir():
         if sub_dir.is_dir():
@@ -22,6 +25,9 @@ def load_results(results_dir,repo:rs.RepositoryModel):
     return results
 
 def udate_list_model():
+    """
+    Update the list of models in the model directory.
+    """
     root_dir="model"
     list_model_path=root_dir+"/list_model.json"
     if os.path.exists(list_model_path):
@@ -87,6 +93,9 @@ def normalize_results(results, optimization_directions):
     return normalized_results
 
 def load_metrics_config():
+    """
+    Load metrics optimization direction.
+    """
     config = yaml.safe_load(open("evaluation_metrics.yaml"))
     return config["evaluation_metrics"], config["optimization_directions"]
 
@@ -176,6 +185,7 @@ if __name__ == "__main__":
 
     results_dir = sys.argv[1]
     results = load_results(results_dir,repo=repo)
+    results["overfitting_tendency"] += 1
     weights, directions = load_metrics_config()
     normalize_results = normalize_results(results, directions)
 

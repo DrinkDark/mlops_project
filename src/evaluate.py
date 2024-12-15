@@ -11,7 +11,9 @@ import repository as rs
 import os
 
 def get_training_plot(model_history: dict) -> plt.Figure:
-    """Plot the training and validation loss"""
+    """
+    Plot the training and validation loss
+    """
     epochs = range(1, len(model_history["loss"]) + 1)
 
     fig = plt.figure(figsize=(10, 4))
@@ -30,8 +32,9 @@ def get_training_plot(model_history: dict) -> plt.Figure:
 def get_pred_preview_plot(
     model: tf.keras.Model, ds_test: tf.data.Dataset, labels: List[str]
 ) -> plt.Figure:
-
-    """Plot a preview of the predictions"""
+    """
+    Plot a preview of the predictions
+    """
     fig = plt.figure(figsize=(10, 5), tight_layout=True)
     for images, label_idxs in ds_test.take(1):
         preds = model.predict(images)
@@ -65,7 +68,9 @@ def get_pred_preview_plot(
 
 
 def get_confusion_matrix_plot(conf_matrix) -> plt.Figure:
-    """Plot a preview of the matrix"""
+    """
+    Plot a preview of the confusion matrix
+    """
     labels = conf_matrix["labels"]
     cm = np.array(conf_matrix["matrix"])
     fig = plt.figure(figsize=(50, 50), tight_layout=True)
@@ -98,8 +103,10 @@ def get_confusion_matrix_plot(conf_matrix) -> plt.Figure:
 
     return fig
 
-def   get_confusion_matrix_json(model: tf.keras.Model, ds_test: tf.data.Dataset, labels: List[str]) :
-    """creat the confusion matrix json"""
+def get_confusion_matrix_json(model: tf.keras.Model, ds_test: tf.data.Dataset, labels: List[str]) :
+    """
+    Create the confusion matrix json
+    """
    
     preds = model.predict(ds_test)
 
@@ -126,13 +133,9 @@ def main() -> None:
     prepared_dataset_folder = Path(sys.argv[2])
     evaluation_folder = Path("evaluation") / Path(name_model)
     plots_folder = Path("plots")
-   
-
-
 
     # Create folders
     (evaluation_folder / plots_folder).mkdir(parents=True, exist_ok=True)
-
     
     # Load files
     ds_test = tf.data.Dataset.load(str(prepared_dataset_folder / "test"))
@@ -147,7 +150,6 @@ def main() -> None:
         model_history = np.load(model_folder / "history.npy", allow_pickle=True).item()
 
         # Log metrics
-
         val_loss, val_acc = model.evaluate(ds_test)
 
         # Measure prediction time
@@ -244,10 +246,6 @@ def main() -> None:
 
             json.dump({"val_loss": val_loss, "val_acc": val_acc, "recall": recall, "fpr": FPR, "f1_score": f1_score,
                     "overfitting_tendency": overfitting_tendency, "complexity": complexity, "mean_predictions_time": mean_prediction_time}, f)
-
-
-
-
 
         # Save training history plot
         fig = get_training_plot(model_history)

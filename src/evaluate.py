@@ -220,7 +220,8 @@ def main() -> None:
 
         validation_loss = model_history['val_loss'][-1]
 
-        overfitting_tendency = training_loss - validation_loss
+        # Add 1 to avoid negative values (range: -1 to 1 -> 0 to 2)
+        overfitting_tendency = (training_loss - validation_loss) + 1
 
         # Complexity (Number of Parameters)
 
